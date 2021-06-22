@@ -1,0 +1,9 @@
+
+# -*- mode: shell-script -*-
+
+if [[ $(uname) == CYGWIN* ]] ; then
+    #emacsdir=~/max-work/emacs-26.3-2.src/emacs-26.3
+elif [[ $(uname -a) == Linux*WSL2* ]] ; then
+    emacsdir=~/max-work/emacs
+fi
+

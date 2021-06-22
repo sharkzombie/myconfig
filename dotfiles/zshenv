@@ -1,0 +1,132 @@
+# in case we are being reloaded and options are in unknown state
+emulate zsh
+# print message if interactive
+function iprint () {
+    emulate -L zsh
+    if [[ -o interactive && $TERM != dumb && $TERM != emacs ]] ; then
+        print $@
+    fi
+}
+
+#
+# Declare PATH like variables
+#
+
+### this is needed otherwise "already tied" error
+### prevents .zshenv from being reloaded
+function _tie_vars ()
+{
+   { typeset -TUx $1 $2 $3 2>/dev/null } always { TRY_BLOCK_ERROR=0 }
+}
+# note need either -x or -g for these to work
+# from inside of reload (because reload is in the function)
+typeset -Ux PATH path 
+typeset -Ug FPATH fpath
+typeset -Ux MANPATH manpath
+typeset -Ux CDPATH cdpath
+typeset -Ux FIGNORE fignore
+_tie_vars XNLSPATH xnlspath
+_tie_vars TEXINPUTS texinputs
+_tie_vars INFOPATH infopath
+_tie_vars INFODIR infopath
+_tie_vars CLASSPATH classpath
+_tie_vars LD_LIBRARY_PATH ld_library_path
+_tie_vars LIBPATH libpath
+
+fignore=()
+
+#
+# Some core declarations
+#
+setopt extended_glob noequals
+# these are more usable when ZSH is executed with -c command
+setopt no_nomatch no_csh_null_glob
+# special array for filenames that are ignored
+_tie_vars IGNORE_FPATH ignore_fpath \|
+_tie_vars IGNORE ignore \|
+# default values, by default ignore backup files
+ignore=("*~" "*.bak" "\#*\#")
+ignore_fpath+="*.*"
+ignore_fpath+="readme"
+
+[[ -f ~/.zignore ]] && . ~/.zignore 
+
+# autoload utility functions
+fpath=(~/myconfig/zsh/base-functions $fpath)
+autoload ~/myconfig/zsh/base-functions/^($~IGNORE|$~IGNORE_FPATH)(N.:t)
+
+### Standard PATH entries
+sbinpaths=(/usr/local/sbin /sbin /usr/sbin /opt/gnome/sbin /opt/kde3/sbin )
+win32paths=()
+[[ $OS == Windows_NT ]] && win32paths=(~/myconfig/win32bin)
+
+path=($win32paths /usr/local/bin /bin /usr/bin /usr/X11R6/bin ~/myconfig/bin ~/myconfig/zsh/commands $path)
+
+extradirs_back=(/var/lib/dosemu /usr/games /opt/bin /opt/gnome/bin /opt/kde3/bin /opt/kde2/bin /opt/kde/bin /usr/openwin/bin /opt/cross/bin)
+extradirs_front=()
+
+# Per host .zshenv, can override sbinpaths, extradirs_front and extradirs_back
+if [[ ! -z $HOST && -r ~/.zshenv.$HOST ]] ; then
+  . ~/.zshenv.$HOST
+fi
+
+# why do I need this?
+if [[ $HOME != / ]] ; then
+  for dir in $HOME/bin/$CPUTYPE $HOME/bin ; do
+    test -d $dir && path=($dir $path)
+  done
+fi
+
+# root only
+# TODO also if wheel or admin on NT
+if [[ $UID == 0 ]] ; then
+	for dir ($sbinpaths) {
+		test -d $dir && path=($dir $path)
+	}
+fi
+for dir ($extradirs_back) {
+	test -d $dir && path=($path $dir)
+}
+for dir ($extradirs_front) {
+	test -d $dir && path=($dir $path)
+}
+
+#zvvv path
+
+#
+# Read the /etc/profile.d stuff
+#
+#. ~/myconfig/bin/debug-zsh-options
+if [ -z $PROFILEREAD ] ; then
+  #debug_options_diff before
+  iprint .zshenv Reading /etc/profile.d/\*
+
+  # inside a function so that we can restore
+  # options back to ZSH
+  read_standard_profile() {
+    emulate -L sh
+    local s
+    for s in /etc/profile.d/*.sh ; do
+      . "$s"
+    done
+  }
+  read_standard_profile
+  #debug_options_diff after
+fi
+
+if test -z "$PROFILEREAD" ; then
+    test -r /etc/SuSEconfig/profile && . /etc/SuSEconfig/profile
+fi
+
+export XUSERFILESEARCHPATH=~/myconfig/X11/app-override/%N
+export RSYNC_RSH=ssh
+export PROFILEREAD=true
+
+# various environment variables
+export DICT=/usr/share/dict/words
+
+# for $EPOCHSECONDS
+zmodload zsh/datetime
+export BROWSER=url
+export LBM_LICENSE_INFO="Organization=Velio Systems:Expiration-Date=never:License-Key=9D98 2C9E 0622 9322"
+

@@ -1,0 +1,22 @@
+;; -*- mode: emacs-lisp -*-
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(cycle-buffer-esc-key nil)
+ '(cycle-buffer-follow t)
+ '(cycle-buffer-start-with-current nil)
+ '(cycle-buffer-wrap nil)
+ '(evil-symbol-word-search t)
+ '(hc-font-lock-override t)
+ '(package-selected-packages (quote (yaml-mode evil-paredit egg cff evil))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(font-lock-function-name-face ((t (:foreground "Blue1" :weight bold)))))
+
+(load "~/myconfig/emacs/emacs-setup.el")

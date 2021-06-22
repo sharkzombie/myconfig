@@ -1,0 +1,15 @@
+
+[core]
+	attributesfile = ~/.gitattributes
+
+[mergetool.ediff]
+	cmd = ediff-merge $LOCAL $REMOTE $BASE $MERGED
+[merge]
+	tool = ediff
+[user]
+	email = nobody@nowhere
+	name = noone
+[diff "lisp"]
+        xfuncname="^(\\(def.*)$"
+[push]
+	default = matching

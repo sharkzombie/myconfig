@@ -1,0 +1,69 @@
+!xterm*font: 9x15
+! use the FreeType
+xterm*renderFont: true
+!xterm*faceName: Bitstream Vera Sans Mono-10
+!xterm*boldFont: 9x15bold
+!xterm*font: -mine-fixed-medium-r-normal--17-170-75-75-c-90-iso8859-1
+emacs*Font: Consolas-9.5
+
+
+                     ! Shift <Btn1Motion>: keymap(mySelect) select-extend() \n\
+                     ! Shift ~Ctrl<Btn1Motion>: keymap(mySelect) select-extend() \n\
+                     ! Shift~Meta~Ctrl<Btn1Motion>: keymap(mySelect) select-extend() \n\
+
+! better mouse stuff for surface pro
+XTerm*VT100.translations: #override \n\
+                     ~Ctrl~Shift<Btn1Down>: select-start() \n\
+                     Shift~Ctrl<Btn1Down>: keymap(mySelect) select-start() \n\
+                     Shift~Ctrl<Btn1Down>: keymap(mySelect) select-start() \n\
+                     Shift <Btn1Down>: keymap(mySelect) start-extend() \n\
+                     Shift~Meta<Btn1Down>: keymap(mySelect) start-extend() \n\
+                     Shift~Meta~Ctrl<Btn1Down>: keymap(mySelect) start-extend() \n\
+                     ~Ctrl<KeyPress>Shift_L,~Ctrl~Meta<Btn1Down>: keymap(mySelect) select-start() \n\
+                     ~Ctrl~Meta<KeyPress>Shift_L,~Ctrl~Meta<Btn1Down>: keymap(mySelect) select-start() \n\
+                     Shift~Meta<KeyPress>Shift_L,Shift<Btn1Down>: keymap(mySelect) select-start() \n\
+                     !Ctrl <Btn1Down>: insert-selection(PRIMARY, CUT_BUFFER0) \n\
+                     !Lock Ctrl <Btn1Down>: insert-selection(PRIMARY, CUT_BUFFER0) \n\
+
+
+
+*VT100.mySelectKeymap.Translations: #override \
+   <Motion>: select-extend() \n\
+   Shift <Motion>: select-extend() \n\
+   <Btn1Motion>: select-extend() \n\
+   Shift <Btn1Motion>: select-extend() \n\
+   !Shift <Motion>: select-extend() \n\
+   Shift ~Meta <Motion>: select-extend() \n\
+   Shift ~Ctrl <Btn1Motion>: select-extend() \n\
+   Shift ~Ctrl ~Meta<Btn1Motion>: select-extend() \n\
+   Shift <BtnMotion>: select-extend() \n\
+   Shift <Btn1Down>: select-start() \n\
+   Meta <Motion>: select-extend() \n\
+   <KeyRelease>Shift_L: select-end(PRIMARY, CUT_BUFFER0) keymap(None) \n\
+   <Key>Return: select-end(PRIMARY, CUT_BUFFER0) keymap(None) \n\
+   <Key>Escape: select-end() select-end() keymap(None) \n\
+   <KeyPress>: ignore() \n\
+   <Key>: ignore() \n\
+   <Btn1Up>: ignore() \n\
+   <BtnUp>: ignore() \n\
+   <ButtonRelease>: ignore() \n\
+   <Btn2Down>: ignore() \n\
+   <Btn2Up>: ignore() \n\
+   Ctrl ~Meta <Btn1Down>: ignore() \n\
+   Ctrl <Btn1Down>: ignore() \n\
+   Ctrl ~Meta <Btn2Down>: ignore() \n\
+   Ctrl <Btn2Down>: ignore() \n\
+   Ctrl ~Meta <Btn1Up>: ignore() \n\
+   Ctrl <Btn1Up>: ignore() \n\
+   Ctrl ~Meta <Btn2Up>: ignore() \n\
+   Ctrl <Btn2Up>: ignore() \n\
+
+
+xterm*faceName: Consolas
+xterm*faceSize: 9.5
+xterm*faceSize1: 11
+xterm*faceSize2: 12
+xterm*faceSize3: 13
+xterm*faceSize4: 14
+xterm*faceSize5: 15
+xterk*faceSize6: 16

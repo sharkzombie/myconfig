@@ -1,0 +1,41 @@
+if whence less >/dev/null ; then
+  alias more=less
+else
+  unalias more
+fi
+
+if [[ ! -z $HOST && -r ~/.zalias.$HOST ]] ; then
+  . ~/.zalias.$HOST
+fi
+
+alias find-emacs-emacs='ps -eafl | grep emacs | grep server-sta | egrep -v irc\|SCREEN'
+alias my-screen=my-scrn
+alias grep=egrep
+
+#
+# ls
+#
+alias l=ls
+alias t=lt
+alias ll='ls -l $LS_HUMAN'
+alias lll='ls -l'
+alias lt='ls -t'
+alias llt='ls -lt $LS_HUMAN'
+alias llh='ls -lt $LS_HUMAN|head'
+alias d='dirs -v'
+
+alias showdpms='xset -q | grep -A1 DPMS'
+
+if command -v emacs >/dev/null 2>&1 ; then
+  alias vi='connect-emacs emacs'
+else
+  alias vi=vim
+fi
+
+if [[ -n $SSH_AUTH_SOCK && -S $SSH_AUTH_SOCK ]] ; then
+    echo export SSH_AUTH_SOCK=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
+elif [[ -f ~/.ssh_auth_sock ]] ; then
+    if ( . ~/.ssh_auth_sock ; [[ -S $SSH_AUTH_SOCK ]] ) ; then
+       . ~/.ssh_auth_sock
+    fi
+fi
