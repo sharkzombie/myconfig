@@ -1,0 +1,143 @@
+#!/bin/zsh
+
+# A hack to make compling broadway stuff under CygWin somewhat workable
+#
+# Used to be a horrible ZSH mess, but now much cleaner thanks to winpty.exe
+#
+# Problems with building broadway under CygWin are
+#
+# 1. Pressing Ctrl-C kill scons.exe, but not python.exe that it spawned,
+#    so once you started a long compile, there is no way to stop it
+#
+# 2. All the error messages from cl.exe obivously use windows filename notation
+#    instead of /cygdrive/c one
+#
+# What is needed
+#
+#   winpty.exe
+#
+# Exnchancemets
+#   Automatically finds the SConscript file by repeatedly going .. one level, and
+#   does CD to that directory before starting scons
+#
+#   Uses same method to find local-vars.py automatically, so you can have a default one
+#   in the top of your tree, and local ones under different subfolders
+#
+
+# Configuration
+# THese are the standard locations suggested by Building Broadway page
+
+
+SCONS='/cygdrive/c/bwaysource/build2/scons-2.4.0/Scripts/scons.exe'
+SCONSDIR='c:/bwaysource/build2/scons-2.4.0/'
+export BWAY_BUILD_TOOLS_DIR='c:/bwaysource/build'
+export LANG=C
+
+# set -x
+
+emulate -L zsh
+
+    local top vars wpid tmp exitcode 
+    typeset -g outfile tailpidfile
+    integer -g tailpid taildone=0
+
+    wscons=$(cygpath -w $SCONS)
+
+    outfile=.tmp$$
+    tailpidfile=.tailpidfile$$
+
+    ### find the local-vars.py
+    top=$(pwd)
+    while [[ $top != "/" && ! -f $top/local-vars.py ]] ; do
+        top=$top:h
+        # print $top
+    done
+
+    if [[ $top == / ]] ; then
+       print Unable to find local-vars.py 
+       return 1
+    fi
+
+
+
+    # Handwritten tail -f that exits and signals when it sees a token
+    function tail_and_signal () {
+        local tail_file=$1 token=$2 signal_pid=$3
+        local line
+        local seen_token=0
+
+        # print "here "
+        # ls -l $outfile $tailpidfile
+        (tail -s0.005 -f $outfile & echo $! >&3) 3>$tailpidfile | stdbuf -o 0 sed -e 's/\\/\//g' -e 's/c:\//\/cygdrive\/c\//' | (
+        # (tail -s0.005 -f $outfile & echo $! >&3) 3>$tailpidfile | sed -e 's/\\/\//g' -e 's/c:\//\/cygdrive\/c\//' | (
+            # wait to get tail process pid
+            while [ ! -f $tailpidfile ] ; do sleep 0.01 ; done
+            tailpid=`cat $tailpidfile`
+            #print @@@ tailpid=$tailpid
+            while [[ tailpid == 0 ]] ; do
+                tailpid=`cat $tailpidfile`
+                print @@@ tailpid=$tailpid
+            done
+            rm -f $tailpidfile
+            # print @@@@ tailpid=$tailpid outfile=$outfile signal_pid=$signal_pid token=$token
+            # set -x
+            while read line ; do
+                if [[ $line == *${token}* ]] ; then
+                    #print @@@@ got end token $line
+                    break
+                fi
+                print -- $line
+            done
+            #print @@@@ Signalling to $signal_pid
+            kill $tailpid
+            kill -USR1 $signal_pid
+        )
+    }
+
+ setopt nocheckjobs
+ setopt nomonitor
+
+ vars=$(cygpath -ma $top/local-vars.py)
+
+ print Using vars file $vars
+
+ TEMP=$(cygpath -wa $TEMP)
+ export TEMP
+ ### find the SConstruct file
+ top=$(pwd)
+ while [[ $top != "/" && ! -f $top/SConscript && ! -f $top/SConstruct ]] ; do
+ top=$top:h
+ # print $top
+ done
+ print "Entering directory '$(cygpath -u $top)'"
+ cd $top
+ ## having environment variable tmp (lowercase) causes LINK.EXE to fail
+ unset tmp
+ rm -f $outfile $tailpidfile
+ touch $outfile
+ TRAPUSR1() {
+     #print @@@@ got USR1 setting taildone
+     taildone=1
+ }
+ TRAPEXIT() (
+     #print @@@@ here in trap exit
+ )
+ TRAPINT() (
+     #print @@@@ here in trap int
+ )
+tail_and_signal $outfile __donedone__ $$&
+ # Run cmd.exe that runs scons redirected to $zz, saves error code, appends __donedone__ to $zz and
+ # finally exits with scons error code
+ set -x
+ winpty -Xallow-non-tty cmd.exe /C $wscons -U --vars=$vars --no-recurse -j 4 $* '>' $outfile '&' set exitcode='%errorlevel%' '&' echo __donedone__ '>>' $outfile '&' exit '%exitcode%'
+ exitcode=$?
+ set +x
+ #print "@@@here winpty done with exitcode=$exitcode waiting on tail to exit"
+ while [[ $taildone == 0 ]] ; do
+     sleep 0.005
+     (echo __donedone__ >> $outfile) 2>/dev/null
+ done
+ #print "@@@@ exiting with error code $exitcode"
+ rm -f $outfile $tailpidfile
+ exit $exitcode
+
