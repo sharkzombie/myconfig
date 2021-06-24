@@ -11,7 +11,7 @@
  '(cycle-buffer-wrap nil)
  '(evil-symbol-word-search t)
  '(hc-font-lock-override t)
- '(package-selected-packages (quote (yaml-mode evil-paredit egg cff evil))))
+ '(package-selected-packages (quote (csharp-mode yaml-mode evil-paredit egg cff evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
