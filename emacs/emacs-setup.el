@@ -54,5 +54,5 @@
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
 
-
+(require 'saveplace)
 
