@@ -120,6 +120,8 @@ mapping will always be the ESC prefix map."
 (evil-define-key '(normal visual) 'global ";c" 'comment-dwim)
 (evil-define-key '(motion) 'global ";b" 'switch-to-buffer)
 
+(evil-define-key '(motion normal insert visual) 'global "\M-gc" 'compile)
+
 
 ;; z key map setup
 ;;(defvar evil-z-map (make-sparse-keymap) "Keymap for z key")

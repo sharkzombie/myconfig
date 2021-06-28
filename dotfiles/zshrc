@@ -155,6 +155,8 @@ my-set-local-history () {
 }
 builtin zle -N my-set-local-history
 bindkeyall "\M-h" my-set-local-history
+# TODO utf8 alt keys
+bindkeyall è my-set-local-history
 # Make moving up into multi-line history entry go to the 1st line
 builtin zle -N my-vi-up-line-or-history
 my-vi-up-line-or-history () {
@@ -333,6 +335,9 @@ define-pipe-widget insert_llt_enter "llt\n"
 # Special bindings to speed up common commands
 bindkeyall "\C-g" insert_grep
 bindkeyall "\M-a" insert_awk
+bindkeyall "�" insert_awk
+# TODO make a function to do utf8 alt keys
+bindkeyall "á" insert_awk
 # remove wrongly added before
 bindkey -M viins  -r "j-a"
 bindkey -M vicmd  -r "j-a"
@@ -556,4 +561,3 @@ test1=moo2
 
 export VISUAL=edit-in-emacs
 export EDITOR=edit-in-emacs
-
