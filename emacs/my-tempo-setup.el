@@ -169,8 +169,11 @@ Example usage:
     (setq tempo-match-finder 'my-c-match-finder)))
 
 (defun enable-tempo-forward/back-mark ()
-  (local-set-key "\M-n" 'tempo-forward-mark)
-  (local-set-key "\M-p" 'tempo-backward-mark))
+  (when (fboundp 'evil-define-key)
+    (evil-define-key '(normal motion insert visual) 'local "\M-n" 'tempo-forward-mark)
+    (evil-define-key '(normal motion insert visual) 'local "\M-p" 'tempo-backward-mark)))
+
+(enable-tempo-forward/back-mark)
 
 (dolist (hook
          '(c-mode-common-hook

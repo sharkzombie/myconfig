@@ -1,7 +1,7 @@
 
 (require 'paredit)
-(enable-paredit-mode)
 (require 'paredit-magic)
+(enable-paredit-mode)
 (paredit-magic-mode 1)
 
 (setq comment-fill-column 120)

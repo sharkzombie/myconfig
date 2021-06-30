@@ -6,27 +6,25 @@ fi
 
 # for reloading
 setopt typeset_silent
-setopt extended_glob
+(){
+    setopt localoptions extended_glob
 
-# autoload everything in fpath
-fpath=(~/myconfig/zsh/functions ~/myconfig/zsh/commands $fpath)
-for tmp in $fpath ; do
-    files=($tmp/^($~IGNORE|$~IGNORE_FPATH)(N.:t))
-    if [[ $#files > 0 ]] ; then
-        autoload $files
-    fi
-done
+    # autoload everything in fpath
+    fpath=(~/myconfig/zsh/functions ~/myconfig/zsh/commands $fpath)
+    for tmp in $fpath ; do
+	files=($tmp/^($~IGNORE|$~IGNORE_FPATH)(N.:t))
+	if [[ $#files > 0 ]] ; then
+	    autoload $files
+	fi
+    done
+}
 
 # interactively I want to be able to use ^ character
-#setopt no_extended_glob
-setopt extended_glob
+setopt no_extended_glob
+#setopt extended_glob
 setopt ksh_glob
 setopt csh_null_glob
 setopt histsubstpattern
-
-
-# Apparently if its loaded in ksh mode, it wont work
-zargs --version 2>/dev/null
 
 # load some standard utilities
 . ~/myconfig/zsh/standard-hooks

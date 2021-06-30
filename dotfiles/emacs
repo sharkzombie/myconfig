@@ -10,11 +10,12 @@
  '(cycle-buffer-start-with-current nil)
  '(cycle-buffer-wrap nil)
  '(evil-symbol-word-search t)
+ '(evil-want-fine-undo t)
  '(find-file-visit-truename t)
  '(hc-font-lock-override t)
  '(package-selected-packages
    (quote
-    (undo-tree csharp-mode yaml-mode evil-paredit egg cff evil))))
+    (cmake-mode cedit undo-tree csharp-mode yaml-mode evil-paredit egg cff evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -126,9 +126,9 @@ for the diff switches"
   ;; (egg-buffer-hide-section-type :diff)
   )
 
-(defadvice vc-print-log-internal (around use-egg-instead-of-git activate)
-  (if (eq backend 'Git) (my-egg-log)
-    (setq ad-return-value ad-do-it)))
+;; (defadvice vc-print-log-internal (around use-egg-instead-of-git activate)
+;;   (if (eq backend 'Git) (my-egg-log)
+;;     (setq ad-return-value ad-do-it)))
 
 (defun my-egg-status (&optional arg)
   "Call `egg-status' with T parameter so it switches to status buffer"

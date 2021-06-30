@@ -282,6 +282,7 @@ If in a character literal, do nothing.  This prevents accidentally
                           (goto-char stmt-start)
                           (looking-at "class\\|struct")))
                (setq insert-semicolon t))
+	     (undo-boundary)
              (c-electric-brace arg)
              (let* ((mark (point-marker)))
                (tempo-insert-mark mark)
@@ -290,7 +291,7 @@ If in a character literal, do nothing.  This prevents accidentally
                  (indent-according-to-mode)
                  (if insert-semicolon
                      (insert ?\;))
-                 (c-newline-and-indent)
+                 ;;(c-newline-and-indent)
                  (tempo-insert-mark (point-marker)))
                (goto-char mark)))))))
 

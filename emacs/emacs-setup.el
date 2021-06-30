@@ -1,7 +1,11 @@
 (add-to-list 'load-path "~/myconfig/emacs")
 
+;;; standard emacs libraries
 (require 'my-utils)
 (require 'package)
+(require 'saveplace)
+(require 'paren)
+(require 'compile)
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
@@ -26,21 +30,23 @@
 
 (require-if-available 'my-utils)
 (require-if-available 'my-term-setup)
-(require-if-available 'my-compile)
 
-;; =================================== Evil =============================
+(when (or (require-if-available 'cua-base ) (require-if-available 'cua))
+  (cua-mode 1))
+
+;; =================================== Evil, CUA, cycle-buffer, variou =============================
 (unless (package-installed-p 'evil)
   (package-install 'evil))
 
+(unless (require-if-available 'evil)
+  (error "Rest of this file requires evil, figure out why evil is not working"))
+
 (require-if-available 'my-evil-setup)
+(require-if-available 'cycle-buffer 'my-cycle-buffer-setup)
 (require-if-available 'my-shell-mode-setup)
+(require-if-available 'my-compile)
 
 ;; =================================== Cycle buffer =====================
-(when (or (require-if-available 'cua-base) (require-if-available 'cua))
-  (cua-mode 1))
-
-(when (require-if-available 'cycle-buffer)
-  (require-if-available 'my-cycle-buffer-setup))
 
 
 ;; Editing file without extension but with zsh in their name
@@ -54,5 +60,4 @@
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
 
-(require 'saveplace)
 

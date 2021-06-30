@@ -1,7 +1,8 @@
-
-
 (require 'cc-mode)
-(require 'c-paredit)
+(require tempo)
+
+(when (require-if-available 'c-paredit)
+  (c-paredit-mode 1))
 
 (defun my-set-cc-style (name definition)
   "Adds a style with specified name, and switches all C-mode buffers to it"

@@ -565,7 +565,7 @@ the list, even if its in the sublist "
   :documentation "Close parentesis in (let ((var (foo param|))))
   automatically advance to next variable"
   :action '(progn
-             (paredit-move-past-close-and-reindent)
+             (paredit-move-past-close-and-reindent ?))
              (unless paredit-magic-in-backspace
                (paredit-magic-close-paren-and-newline))))
 
@@ -584,7 +584,7 @@ not close parentethis twice"
                       (paredit-magic-close-paren-and-newline))
                     (unless paredit-magic-in-backspace
                       (paredit-open-parenthesis)))
-                   (t (paredit-move-past-close-and-reindent)
+                   (t (paredit-move-past-close-and-reindent ?))
                       (unless paredit-magic-in-backspace
                         (paredit-open-parenthesis nil))))))
 
@@ -694,7 +694,7 @@ point on the next line after EXP"
   in non-emacs lisp style if statement (with single ELSE clause allowed)
   automatically close two parestesis and advance to after the if statement"
   :action '(progn
-             (paredit-move-past-close-and-reindent)
+             (paredit-move-past-close-and-reindent ?))
              (paredit-magic-close-paren-and-newline)))
 
 (defconst paredit-magic-body0-forms
@@ -792,7 +792,7 @@ automatically do new line"
              (paredit-in-comment-p))
          (insert close))
         (t (if (paredit-in-char-p) (forward-char))
-           (paredit-move-past-close-and-reindent)
+           (paredit-move-past-close-and-reindent ?))
            (let ((comment.point (paredit-find-comment-on-line)))
              (if (looking-at "[ \t]*\n[ \t]*\n")
                  (progn (forward-line)
@@ -844,7 +844,7 @@ structure move functions"
                  (beginning-of-line)
                  (looking-at "^[[:space:]]*)"))
                (paredit-move-past-close-and-newline close)
-             (paredit-move-past-close-and-reindent)
+             (paredit-move-past-close-and-reindent ?))
              (setq paredit-magic-space-point (point-marker))
              (insert " ")
              (paredit-magic-slime-echo-args)
@@ -1139,7 +1139,7 @@ automatically do newline and advance to the start of implied progn"
   :documentation "Close parentesis in (do ((var init (next () last|))))
  automatically advance to next variable"
   :action '(progn
-             (paredit-move-past-close-and-reindent)
+             (paredit-move-past-close-and-reindent ?))
              (unless paredit-magic-in-backspace
                (paredit-magic-close-paren-and-newline))))
 
@@ -1161,7 +1161,7 @@ automatically do newline and advance to the start of implied progn"
   :documentation "Close parentesis in (do (vars...) (cond (result (foo bar|)))
  automatically advance to next variable"
   :action '(progn
-             (paredit-move-past-close-and-reindent)
+             (paredit-move-past-close-and-reindent ?))
              (unless paredit-magic-in-backspace
                (paredit-magic-close-paren-and-newline))))
 

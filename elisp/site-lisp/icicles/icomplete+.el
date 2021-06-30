@@ -3,21 +3,23 @@
 ;; Filename: icomplete+.el
 ;; Description: Extensions to `icomplete.el'.
 ;; Author: Drew Adams
-;; Maintainer: Drew Adams
-;; Copyright (C) 1996-2013, Drew Adams, all rights reserved.
+;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
+;; Copyright (C) 1996-2018, Drew Adams, all rights reserved.
 ;; Created: Mon Oct 16 13:33:18 1995
-;; Version: 21.0
-;; Last-Updated: Thu Jan 31 21:50:56 2013 (-0800)
+;; Version: 0
+;; Package-Requires: ()
+;; Last-Updated: Mon Jan 14 10:17:48 2019 (-0800)
 ;;           By: dradams
-;;     Update #: 1608
-;; URL: http://www.emacswiki.org/icomplete+.el
-;; Doc URL: http://emacswiki.org/IcompleteMode
+;;     Update #: 1723
+;; URL: https://www.emacswiki.org/emacs/download/icomplete%2b.el
+;; Doc URL: https://emacswiki.org/emacs/IcompleteMode
 ;; Keywords: help, abbrev, internal, extensions, local, completion, matching
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x, 26.x
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `icomplete'.
+;;   `backquote', `bytecomp', `cconv', `cl-lib', `icomplete',
+;;   `icomplete+', `macroexp'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -62,7 +64,7 @@
 ;;
 ;;
 ;;  ***** NOTE: The following functions defined in `icomplete.el'
-;;              have been REDEFINED HERE:
+;;              have been REDEFINED OR ADVISED HERE:
 ;;
 ;;    `icomplete-get-keys' (Emacs < 24.3) -
 ;;       1. Respect `icompletep-include-menu-items-flag'.
@@ -81,6 +83,8 @@
 ;;       1. Save match-data.
 ;;       2. Do not insert if input begins with `(' (e.g. `repeat-complex-command').
 ;;       3. Ensure that the insertion does not deactivate mark.
+;;
+;;    `icomplete-mode' - Advised to provide Icomplete+ doc.
 ;;
 ;;
 ;;  This file should be loaded after loading the standard GNU file
@@ -122,6 +126,35 @@
 ;;
 ;;; Change Log:
 ;;
+;; 2019/01/14 dadams
+;;     Applied fix for Emacs bug #34070.
+;; 2016/07/04 dadams
+;;     icomplete-exhibit (Emacs 24.4+): Call icomplete--field-(beg|end) only once.
+;; 2015/06/18 dadams
+;;     icomplete-completions: Use boundp for icicle-mode, not fboundp.
+;; 2014/04/15 dadams
+;;     icomplete-exhibit: Update version tests, for Emacs 24.4 pretest (23.90.1).
+;; 2014/04/13 dadams
+;;     icomplete-exhibit, fix Emacs bug #17165: Ensure no error because (icomplete--field-*) is nil.
+;; 2014/03/10 dadams
+;;     icomplete-exhibit: Reverted fix from 2014-03-05 for Emacs < 23 (broke progressive completion).
+;; 2014/03/05 dadams
+;;     icomplete-exhibit: Wrap body with with-current-buffer, to prevent using *Completions* buffer.
+;; 2014/01/11 dadams
+;;     Soft, not hard require cl-lib.el.  Only 24.3+ has it.
+;;     icompletep-completion-all-sorted-completions for Emacs 24.1-3:
+;;       Use icompletep-remove-if if cl-delete-if is not defined (i.e., for Emacs 24.1-2).
+;; 2013/12/31 dadams
+;;     icomplete-exhibit, for Emacs 24.3.50: Protect icomplete-show-matches-on-no-input with boundp.
+;; 2013/12/27 dadams
+;;     icomplete-exhibit, icomplete-completions, icompletep-completion-all-sorted-completions:
+;;       Added 24.4+ version.
+;;     icompletep-completion-all-sorted-completions:
+;;       Use cl-delete-if, not delete-if.  And require cl-lib.el.
+;;       Take regexp-opt calculation out of the cl-delete-if loop, for performance.
+;; 2013/09/21 dadams
+;;     icompletep-completion-all-sorted-completions:
+;;       Temporary hack for 24.4: completion--cache-all-sorted-completions takes 3 args now.
 ;; 2013/01/31 dadams
 ;;     Added: icompletep-cycling-mode.  Turn it off by default.
 ;; 2013/01/01 dadams
@@ -260,10 +293,15 @@
 
 (require 'icomplete)
 
+(when (> emacs-major-version 23)        ; Emacs 24.3+ actually, so soft-require.
+  (require 'cl-lib nil t)) ; cl-delete-if
+
 ;; Quiet the byte-compiler.
 (defvar completion-all-sorted-completions)
 (defvar icomplete-eoinput)
+(defvar icomplete-hide-common-prefix)
 (defvar icomplete-minibuffer-map)
+(defvar icomplete-show-matches-on-no-input)
 (defvar icomplete-with-completion-tables)
 (defvar icompletep-include-menu-items-flag)
 (defvar icompletep-ORIG-icomplete-minibuffer-map)
@@ -284,11 +322,11 @@ icomplete+.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+          "https://www.emacswiki.org/emacs/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/cgi-bin/wiki/icomplete+.el")
+          "https://www.emacswiki.org/emacs/download/icomplete+.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/cgi-bin/wiki/IcompleteMode#IcompleteModePlus")
+          "https://www.emacswiki.org/emacs/IcompleteMode#IcompleteModePlus")
   :link '(emacs-commentary-link :tag "Commentary" "icomplete+"))
 
 ;;;###autoload
@@ -347,6 +385,10 @@ This has no effect unless library `icicles.el' is being used."
     '((t (:foreground "Red")))
   "*Face for minibuffer reminder of possible completion key bindings."
   :group 'Icomplete-Plus)
+
+(defvar icomplete--filtered-completions () ; Emacs bug #34070.
+  "If non-nil, completions as filtered by `icomplete-completions'.")
+
 
 ;;; Quiet the byte-compiler.
 (defvar icomplete-overlay)
@@ -488,6 +530,7 @@ menu-bar bindings in the l of keys (Emacs 23+ only)."
                  (setq keys  (concat (substring keys 0 (max 0 (- max-len 5))) "...")))))
         keys))))
 
+;; Same as `icicle-remove-if' in `icicles-fn.el'.
 (defun icompletep-remove-if (pred xs)
   "A copy of list XS with no elements that satisfy predicate PRED."
   (let ((result  ()))
@@ -500,49 +543,112 @@ menu-bar bindings in the l of keys (Emacs 23+ only)."
 ;; Save match-data.
 ;; Don't insert if input begins with `(' (e.g. `repeat-complex-command').
 ;;
-(when (> emacs-major-version 22)   ; Emacs 23+
+(when (and (> emacs-major-version 22)   ; Emacs 23 through Emacs 24.3.
+           (or (< emacs-major-version 24)
+               (and (= emacs-major-version 24)  (< emacs-minor-version 4)
+                    (version< emacs-version "24.3.50"))))
   (defun icomplete-exhibit ()
     "Insert icomplete completions display.
 Should be run via minibuffer `post-command-hook'.  See `icomplete-mode'
 and `minibuffer-setup-hook'."
     (when (and icomplete-mode  (icomplete-simple-completing-p))
-      (save-excursion
-        (goto-char (point-max))
-        ;; Insert the match-status information.
-        (when (and (> (point-max) (minibuffer-prompt-end))
-                   buffer-undo-list     ; Wait for some user input.
-                   (save-excursion      ; Do nothing if looking at a list, string, etc.
-                     (goto-char (minibuffer-prompt-end))
-                     (save-match-data
-                       (not (looking-at ; No (, ", ', 9 etc. at start.
-                             "\\(\\s-+$\\|\\s-*\\(\\s(\\|\\s\"\\|\\s'\\|\\s<\\|[0-9]\\)\\)"))))
-                   (or
-                    ;; Do not bother with delay after certain number of chars:
-                    (> (- (point) (field-beginning)) icomplete-max-delay-chars)
-                    ;; Do not delay if completions are known.
-                    completion-all-sorted-completions
-                    ;; Do not delay if alternatives number is small enough:
-                    (and (sequencep minibuffer-completion-table)
-                         (< (length minibuffer-completion-table)
-                            icomplete-delay-completions-threshold))
-                    ;; Delay - give some grace time for next keystroke, before
-                    ;; embarking on computing completions:
-                    (sit-for icomplete-compute-delay)))
-          (let ((text              (while-no-input (icomplete-completions
-                                                    (field-string)
-                                                    minibuffer-completion-table
-                                                    minibuffer-completion-predicate
-                                                    (not minibuffer-completion-confirm))))
-                (buffer-undo-list  t)
-                deactivate-mark)
-            ;; Do nothing if `while-no-input' was aborted.
-            (when (stringp text)
-              (move-overlay icomplete-overlay (point) (point) (current-buffer))
-              ;; The current C cursor code doesn't know to use the overlay's
-              ;; marker's stickiness to figure out whether to place the cursor
-              ;; before or after the string, so let's spoon-feed it the pos.
-              (put-text-property 0 1 'cursor t text)
-              (overlay-put icomplete-overlay 'after-string text))))))))
+      (with-current-buffer (window-buffer (active-minibuffer-window))
+        (save-excursion
+          (goto-char (point-max))
+          ;; Insert the match-status information.
+          (when (and (> (point-max) (minibuffer-prompt-end))
+                     buffer-undo-list   ; Wait for some user input.
+                     (save-excursion    ; Do nothing if looking at a list, string, etc.
+                       (goto-char (minibuffer-prompt-end))
+                       (save-match-data
+                         (not (looking-at ; No (, ", ', 9 etc. at start.
+                               "\\(\\s-+$\\|\\s-*\\(\\s(\\|\\s\"\\|\\s'\\|\\s<\\|[0-9]\\)\\)"))))
+                     (or
+                      ;; Do not bother with delay after certain number of chars:
+                      (> (- (point) (field-beginning)) icomplete-max-delay-chars)
+                      ;; Do not delay if completions are known.
+                      completion-all-sorted-completions
+                      ;; Do not delay if alternatives number is small enough:
+                      (and (sequencep minibuffer-completion-table)
+                           (< (length minibuffer-completion-table)
+                              icomplete-delay-completions-threshold))
+                      ;; Delay - give some grace time for next keystroke, before
+                      ;; embarking on computing completions:
+                      (sit-for icomplete-compute-delay)))
+            (let ((text              (while-no-input (icomplete-completions
+                                                      (field-string)
+                                                      minibuffer-completion-table
+                                                      minibuffer-completion-predicate
+                                                      (not minibuffer-completion-confirm))))
+                  (buffer-undo-list  t)
+                  deactivate-mark)
+              ;; Do nothing if `while-no-input' was aborted.
+              (when (stringp text)
+                (move-overlay icomplete-overlay (point) (point) (current-buffer))
+                ;; The current C cursor code doesn't know to use the overlay's
+                ;; marker's stickiness to figure out whether to place the cursor
+                ;; before or after the string, so let's spoon-feed it the pos.
+                (put-text-property 0 1 'cursor t text)
+                (overlay-put icomplete-overlay 'after-string text)))))))))
+
+
+;; REPLACES ORIGINAL defined in `icomplete.el':
+;;
+;; Save match-data.
+;; Don't insert if input begins with `(' (e.g. `repeat-complex-command').
+;;
+(when (or (> emacs-major-version 24)    ; Emacs 24.4+
+          (and (= emacs-major-version 24)  (> emacs-minor-version 3))
+          (and (= emacs-major-version 24)  (not (version< emacs-version "24.3.50")))) ;@@@@ TO REMOVE
+  (defun icomplete-exhibit ()
+    "Insert icomplete completions display.
+Should be run via minibuffer `post-command-hook'.  See `icomplete-mode'
+and `minibuffer-setup-hook'."
+    (when (and icomplete-mode  (icomplete-simple-completing-p)) ;Shouldn't be necessary.
+      (with-current-buffer (window-buffer (active-minibuffer-window))
+        (save-excursion
+          (goto-char (point-max))
+          (let ((field-end  (icomplete--field-end))
+                (field-beg  (icomplete--field-beg)))
+            ;; Insert the match-status information.
+            (when (and (or (and (boundp 'icomplete-show-matches-on-no-input)
+                                icomplete-show-matches-on-no-input)
+                           (and (numberp field-end)  (numberp field-beg)
+                                (> field-end field-beg)))
+                       (save-excursion  ; Do nothing if looking at a list, string, etc.
+                         (when (numberp field-end) (goto-char field-end))
+                         (save-match-data
+                           (not (looking-at ; No (, ", ', 9 etc. at start.
+                                 "\\(\\s-+$\\|\\s-*\\(\\s(\\|\\s\"\\|\\s'\\|\\s<\\|[0-9]\\)\\)"))))
+                       (or
+                        ;; Do not bother with delay after certain number of chars:
+                        (> (- (point) field-beg) icomplete-max-delay-chars)
+                        ;; Do not delay if completions are known.
+                        completion-all-sorted-completions
+                        ;; Do not delay if alternatives number is small enough:
+                        (and (sequencep (icomplete--completion-table))
+                             (< (length (icomplete--completion-table))
+                                icomplete-delay-completions-threshold))
+                        ;; Delay - give some grace time for next keystroke, before
+                        ;; embarking on computing completions:
+                        (sit-for icomplete-compute-delay)))
+              (let* ((field-string      (icomplete--field-string))
+                     (text              (while-no-input (icomplete-completions
+                                                         field-string
+                                                         (icomplete--completion-table)
+                                                         (icomplete--completion-predicate)
+                                                         (and (window-minibuffer-p)
+                                                              (not minibuffer-completion-confirm)))))
+                     (buffer-undo-list  t)
+                     deactivate-mark)
+                ;; Do nothing if `while-no-input' was aborted.
+                (when (stringp text)
+                  (move-overlay icomplete-overlay (point) (point) (current-buffer))
+                  ;; The current C cursor code doesn't know to use the overlay's
+                  ;; marker's stickiness to figure out whether to place the cursor
+                  ;; before or after the string, so let's spoon-feed it the pos.
+                  (put-text-property 0 1 'cursor t text)
+                  (overlay-put icomplete-overlay 'after-string text))))))))))
 
 
 ;; REPLACES ORIGINAL defined in `icomplete.el':
@@ -677,8 +783,10 @@ following the rest of the icomplete info:
 ;; 2. Sorts alternatives alphabetically, puts them in a different face, and separates them more.
 ;; 3. Highlights key-binding text, truncating it if too long.
 ;; 4. Appends number of remaining cycle candidates (for Icicles).
+;; 5. Applies fix for Emacs bug #34070.
 ;;
 (when (= emacs-major-version 23)
+
   (defun icomplete-completions (name collection predicate require-match)
     "Identify prospective candidates for minibuffer completion.
 NAME is the name to complete.
@@ -724,129 +832,135 @@ following the rest of the icomplete info:
                                  (completion-pcm--filename-try-filter
                                   (all-completions name collection predicate))
                                (all-completions name collection predicate)))
-           (nb-candidates    (length comps))
-           (nb-cands-string  (if (< nb-candidates 2) "" (format "%7d " nb-candidates)))
 ;;; We do not use `completion-all-sorted-completions', so we do not need `last' or `base-size'.
 ;;; $$$$$      (last          (if (consp comps) (last comps)))
 ;;;            (base-size     (cdr last))
            (open-bracket     (if require-match "("   " ["))
-           (close-bracket    (if require-match ") "  "] ")))
-      ;; `concat'/`mapconcat' is the slow part.
-      (if (not (consp comps))
-          (format (if (fboundp 'icicle-apropos-complete)
-                      "\t%sNo prefix matches%s"
-                    "\t%sNo matches%s")
-                  open-bracket close-bracket)
+           (close-bracket    (if require-match ") "  "] "))
+           nb-candidates nb-cands-string)
+    (when (fboundp 'completion-pcm--filename-try-filter) ; Emacs 23+ - bug #34070.
+      (if (and minibuffer-completing-file-name  icomplete-with-completion-tables)
+          (setq comps                            (completion-pcm--filename-try-filter comps)
+                icomplete--filtered-completions  comps)
+        (setq icomplete--filtered-completions  ())))
+    (setq nb-candidates    (length comps)
+          nb-cands-string  (if (< nb-candidates 2) "" (format "%7d " nb-candidates)))
+    ;; `concat'/`mapconcat' is the slow part.
+    (if (not (consp comps))
+        (format (if (fboundp 'icicle-apropos-complete)
+                    "\t%sNo prefix matches%s"
+                  "\t%sNo matches%s")
+                open-bracket close-bracket)
 ;;; $$$$$   (if last (setcdr last ()))
-        (let* ((keys           ())
-               (most-try
-                ;; We do not use BASE-SIZE.  So we just use `try-completion'.
+      (let* ((keys           ())
+             (most-try
+              ;; We do not use BASE-SIZE.  So we just use `try-completion'.
 ;;;             (if (and base-size (> base-size 0))
 ;;;                 (completion-try-completion name collection predicate (length name))
 ;;;               ;; If the COMPS are 0-based, the result should be the same with COMPS.
 ;;;               (completion-try-completion name comps nil (length name))))
-                (try-completion name collection predicate))
-               ;; Since we use `try-completion', MOST-TRY will not be a cons.
-               ;; (most        (if (consp most-try) (car most-try) (if most-try (car comps) "")))
-               (most           (if (stringp most-try) most-try (car comps)))
-               ;; Compare NAME and MOST, so we can determine if NAME is
-               ;; a prefix of MOST, or something else.
-               (compare        (compare-strings name nil nil most nil nil
-                                                completion-ignore-case))
-               (determ         (and (not (or (eq t compare)  (eq t most-try)
-                                             (= (setq compare  (1- (abs compare))) (length most))))
-                                    (concat open-bracket
-                                            (cond ((= compare (length name)) ; NAME is a prefix
-                                                   (substring most compare))
-                                                  ((< compare 5) most)
-                                                  (t (concat "..." (substring most compare))))
-                                            close-bracket)))
-               (prospects-len  (+ (if (and (boundp 'icicle-mode)  icicle-mode  (icicle-completing-p))
-				      2	; for `icicle-completion-prompt-overlay'
-				    0)
-                                  (string-width (buffer-string)) ; for prompt
-				  (string-width nb-cands-string)
-				  (length determ) ; for determined part
-				  2     ; for "{ "
-				  -2    ; for missing last "  " after last candidate
-				  5))	; for "... }"
-               (prospects-max
-                ;; Max total length to use, including the minibuffer content.
-                (* (+ icomplete-prospects-height
-                      ;; If the minibuffer content already uses up more than
-                      ;; one line, increase the allowable space accordingly.
-                      (/ prospects-len (window-width)))
-                   (window-width)))
-               (prefix-len
-                ;; Find the common prefix among `comps'.
-                ;; Cannot use the optimization below because its assumptions
-                ;; are not always true, e.g. when completion-cycling (Emacs bug #10850):
-                ;; (if (eq t (compare-strings (car comps) nil (length most)
-                ;; 			 most nil nil completion-ignore-case))
-                ;;     ;; Common case.
-                ;;     (length most)
-                ;; Else, use try-completion.
-                (let ((comps-prefix  (try-completion "" comps)))
-                  (and (stringp comps-prefix)  (string-width comps-prefix))))
-               prompt prompt-rest prospects most-is-exact comp limit)
-          (when determ
-            (put-text-property 0 (length determ) 'face 'icompletep-determined determ))
-          (if (eq most-try t)           ; (or (null (cdr comps))
-              (setq prospects  ())
-            (while (and comps  (not limit))
-              (setq comp   (if prefix-len (substring (car comps) prefix-len) (car comps))
-                    comps  (cdr comps))
-              (cond ((string= comp "") (setq most-is-exact  t))
-                    ((member comp prospects))
-                    (t (setq prospects-len  (+ (string-width comp)
-                                               (string-width icomplete-separator)
-                                               prospects-len))
-                       (if (< prospects-len prospects-max)
-                           (push comp prospects)
-                         (setq limit  t))))))
+              (try-completion name collection predicate))
+             ;; Since we use `try-completion', MOST-TRY will not be a cons.
+             ;; (most        (if (consp most-try) (car most-try) (if most-try (car comps) "")))
+             (most           (if (stringp most-try) most-try (car comps)))
+             ;; Compare NAME and MOST, so we can determine if NAME is
+             ;; a prefix of MOST, or something else.
+             (compare        (compare-strings name nil nil most nil nil
+                                              completion-ignore-case))
+             (determ         (and (not (or (eq t compare)  (eq t most-try)
+                                           (= (setq compare  (1- (abs compare))) (length most))))
+                                  (concat open-bracket
+                                          (cond ((= compare (length name)) ; NAME is a prefix
+                                                 (substring most compare))
+                                                ((< compare 5) most)
+                                                (t (concat "..." (substring most compare))))
+                                          close-bracket)))
+             (prospects-len  (+ (if (and (boundp 'icicle-mode)  icicle-mode  (icicle-completing-p))
+				    2 ; for `icicle-completion-prompt-overlay'
+				  0)
+                                (string-width (buffer-string)) ; for prompt
+				(string-width nb-cands-string)
+				(length determ) ; for determined part
+				2               ; for "{ "
+				-2 ; for missing last "  " after last candidate
+				5))	; for "... }"
+             (prospects-max
+              ;; Max total length to use, including the minibuffer content.
+              (* (+ icomplete-prospects-height
+                    ;; If the minibuffer content already uses up more than
+                    ;; one line, increase the allowable space accordingly.
+                    (/ prospects-len (window-width)))
+                 (window-width)))
+             (prefix-len
+              ;; Find the common prefix among `comps'.
+              ;; Cannot use the optimization below because its assumptions
+              ;; are not always true, e.g. when completion-cycling (Emacs bug #10850):
+              ;; (if (eq t (compare-strings (car comps) nil (length most)
+              ;; 			 most nil nil completion-ignore-case))
+              ;;     ;; Common case.
+              ;;     (length most)
+              ;; Else, use try-completion.
+              (let ((comps-prefix  (try-completion "" comps)))
+                (and (stringp comps-prefix)  (string-width comps-prefix))))
+             prompt prompt-rest prospects most-is-exact comp limit)
+        (when determ
+          (put-text-property 0 (length determ) 'face 'icompletep-determined determ))
+        (if (eq most-try t)             ; (or (null (cdr comps))
+            (setq prospects  ())
+          (while (and comps  (not limit))
+            (setq comp   (if prefix-len (substring (car comps) prefix-len) (car comps))
+                  comps  (cdr comps))
+            (cond ((string= comp "") (setq most-is-exact  t))
+                  ((member comp prospects))
+                  (t (setq prospects-len  (+ (string-width comp)
+                                             (string-width icomplete-separator)
+                                             prospects-len))
+                     (if (< prospects-len prospects-max)
+                         (push comp prospects)
+                       (setq limit  t))))))
 ;;; $$$$$    ;; Restore the base-size info, since `completion-all-sorted-completions' is cached.
 ;;;          (when last (setcdr last base-size))
-          (setq prompt-rest
-                (if prospects
-                    (concat "{ " (and most-is-exact  icompletep-exact-separator)
-                            (mapconcat 'identity (sort prospects (function string-lessp))
-                                       icomplete-separator)
-                            (and limit  "...")
-                            " }")
-                  (setq keys  (and icomplete-show-key-bindings
-                                   (commandp (intern-soft most))
-                                   (icomplete-get-keys most (eq t most-try))))
-                  (if (eq keys 'TOO-LONG) ; No room even for `[ ... ]'.
-                      ""
-                    (concat " [ " (and (not keys)  "Matched") keys " ]"))))
-          (unless (string= "" prompt-rest)
-            (put-text-property 0 (length prompt-rest) 'face 'icompletep-choices prompt-rest))
-          (cond ((< nb-candidates 2)
-                 (setq prompt  (concat "      " determ prompt-rest)) ; 6 spaces.
-                 (when (eq last-command this-command)
-                   (setq icicle-nb-of-other-cycle-candidates  0))) ; We know now, so reset it.
-                (t
-                 (put-text-property (string-match "\\S-" nb-cands-string)
-                                    (1- (length nb-cands-string))
-                                    'face 'icompletep-nb-candidates nb-cands-string)
-                 (setq prompt  (concat nb-cands-string determ prompt-rest))))
-          ;; Highlight keys.
-          (when (stringp keys)
-            (put-text-property (+ 9 (length determ)) (1- (length prompt))
-                               'face 'icompletep-keys prompt))
-          ;; Append mention of number of other cycle candidates (from `icicles.el').
-          (when (and (boundp 'icicle-last-completion-candidate)
-                     (> icicle-nb-of-other-cycle-candidates 0)
-                     (= 1 nb-candidates)
-                     icicle-last-completion-candidate
-                     (not (eq last-command this-command)))
-            (setq nb-cands-string       ; Reuse the string.
-                  (format "  (%d more)" icicle-nb-of-other-cycle-candidates))
-            (put-text-property (string-match "\\S-" nb-cands-string)
-                               (length nb-cands-string)
-                               'face 'icompletep-nb-candidates nb-cands-string)
-            (setq prompt  (concat prompt nb-cands-string)))
-          prompt)))))
+        (setq prompt-rest
+              (if prospects
+                  (concat "{ " (and most-is-exact  icompletep-exact-separator)
+                          (mapconcat 'identity (sort prospects (function string-lessp))
+                                     icomplete-separator)
+                          (and limit  "...")
+                          " }")
+                (setq keys  (and icomplete-show-key-bindings
+                                 (commandp (intern-soft most))
+                                 (icomplete-get-keys most (eq t most-try))))
+                (if (eq keys 'TOO-LONG) ; No room even for `[ ... ]'.
+                    ""
+                  (concat " [ " (and (not keys)  "Matched") keys " ]"))))
+        (unless (string= "" prompt-rest)
+          (put-text-property 0 (length prompt-rest) 'face 'icompletep-choices prompt-rest))
+        (cond ((< nb-candidates 2)
+               (setq prompt  (concat "      " determ prompt-rest)) ; 6 spaces.
+               (when (eq last-command this-command)
+                 (setq icicle-nb-of-other-cycle-candidates  0))) ; We know now, so reset it.
+              (t
+               (put-text-property (string-match "\\S-" nb-cands-string)
+                                  (1- (length nb-cands-string))
+                                  'face 'icompletep-nb-candidates nb-cands-string)
+               (setq prompt  (concat nb-cands-string determ prompt-rest))))
+        ;; Highlight keys.
+        (when (stringp keys)
+          (put-text-property (+ 9 (length determ)) (1- (length prompt))
+                             'face 'icompletep-keys prompt))
+        ;; Append mention of number of other cycle candidates (from `icicles.el').
+        (when (and (boundp 'icicle-last-completion-candidate)
+                   (> icicle-nb-of-other-cycle-candidates 0)
+                   (= 1 nb-candidates)
+                   icicle-last-completion-candidate
+                   (not (eq last-command this-command)))
+          (setq nb-cands-string         ; Reuse the string.
+                (format "  (%d more)" icicle-nb-of-other-cycle-candidates))
+          (put-text-property (string-match "\\S-" nb-cands-string)
+                             (length nb-cands-string)
+                             'face 'icompletep-nb-candidates nb-cands-string)
+          (setq prompt  (concat prompt nb-cands-string)))
+        prompt)))))
 
 
 ;; REPLACES ORIGINAL defined in `icomplete.el':
@@ -856,8 +970,10 @@ following the rest of the icomplete info:
 ;;    cycle candidates.  You can cycle the sort order using `C-,'.
 ;; 3. Show candidates in a different face.
 ;; 4. Optionally show and highlight key bindings, truncating if too long.
+;; 5. Applies fix for Emacs bug #34070.
 ;;
-(when (> emacs-major-version 23)        ; Emacs 24+.
+(when (and (= emacs-major-version 24)  (< emacs-minor-version 4)) ; Emacs 24.1 through Emacs 24.3.
+
   (defun icomplete-completions (name candidates predicate require-match)
     "Identify prospective candidates for minibuffer completion.
 NAME is the name to complete.
@@ -896,7 +1012,7 @@ In Icicle mode:
    M-x forward-line   [Matched]  (13 more)."
     ;; `concat'/`mapconcat' is the slow part.
     (let* ((non-essential  t)
-           (icyp           (and (fboundp 'icicle-mode)  icicle-mode))
+           (icyp           (and (boundp 'icicle-mode)  icicle-mode))
            (open-bracket   (if require-match "("   " ["))
            (close-bracket  (if require-match ") "  "] "))
            (md             (completion--field-metadata (field-beginning)))
@@ -904,10 +1020,15 @@ In Icicle mode:
                             (and icyp  #'icicle-reversible-sort)))
            (last           (and (consp comps)  (last comps)))
            (base-size      (cdr last))
-           nb-candidates  nb-cands-string)
+           nb-candidates nb-cands-string)
       (if (not (consp comps))
           (format "\t%sNo matches%s" open-bracket close-bracket)
         (when last (setcdr last ()))
+        (when (fboundp 'completion-pcm--filename-try-filter) ; Emacs 23+ - bug #34070.
+          (if (and minibuffer-completing-file-name  icomplete-with-completion-tables)
+              (setq comps                            (completion-pcm--filename-try-filter comps)
+                    icomplete--filtered-completions  comps)
+            (setq icomplete--filtered-completions  ())))
         (setq nb-candidates    (length comps)
               nb-cands-string  (if (< nb-candidates 2) "" (format "%7d " nb-candidates)))
         (let* ((most-try       (if (and base-size  (> base-size 0))
@@ -1037,9 +1158,12 @@ If SORT-FUNCTION is nil, sort per `completion-all-sorted-completions':
             ;; Exclude file names with extensions in `completion-ignored-extensions'.
             (when (or minibuffer-completing-file-name
                       (and (boundp 'icicle-abs-file-candidates)  icicle-abs-file-candidates))
-              (setq all  (delete-if (lambda (fl)
-                                      (string-match-p (regexp-opt completion-ignored-extensions) fl))
-                                    all)))
+              (let ((ignore-regexp  (regexp-opt completion-ignored-extensions))
+                    ;; Only Emacs 24.3+ has library `cl-lib.el', with `cl-delete-if'.
+                    (fun            (if (fboundp 'cl-delete-if)
+                                        #'cl-delete-if
+                                      #'icompletep-remove-if)))
+                (setq all  (funcall fun (lambda (fl) (string-match-p ignore-regexp fl)) all))))
             (unless dont-remove-dups (setq all  (delete-dups all))) ; Delete duplicates.
             (setq last  (last all)      ; Reset LAST, since it may be a different cons-cell.
                   all   (if sort-fun
@@ -1051,7 +1175,248 @@ If SORT-FUNCTION is nil, sort per `completion-all-sorted-completions':
                                                         (length (member c2 hist))))))))
             ;; Cache result.  Not just for speed, but also so repeated calls to
             ;; `minibuffer-force-complete' can cycle through all possibilities.
-            (completion--cache-all-sorted-completions (nconc all base-size)))))))
+
+            ;; $$$$$$ Temporary fix - will need to change more when `icomplete.el' in Emacs 24.4
+            ;;        becomes more stable.  They changed the number of args here from 1 to 3.
+            (if (fboundp 'icomplete--field-beg) ; Emacs 24.4+
+                (completion--cache-all-sorted-completions
+                 (icomplete--field-beg) (icomplete--field-end) (nconc all base-size))
+              (completion--cache-all-sorted-completions (nconc all base-size)))))))
+  )
+
+
+(when (or (> emacs-major-version 24)    ; Emacs 24.4+
+          (and (= emacs-major-version 24)  (> emacs-minor-version 3)))
+
+
+  ;; REPLACES ORIGINAL defined in `icomplete.el':
+  ;;
+  ;; 1. Prepend total number of candidates.
+  ;; 2. With Icicles, sort candidates using `icicle-reversible-sort' and show number of remaining
+  ;;    cycle candidates.  You can cycle the sort order using `C-,'.
+  ;; 3. Show candidates in a different face.
+  ;; 4. Optionally show and highlight key bindings, truncating if too long.
+  ;; 5. Applies fix for Emacs bug #34070.
+  ;;
+  (defun icomplete-completions (name candidates predicate require-match)
+    "Identify prospective candidates for minibuffer completion.
+NAME is the name to complete.
+CANDIDATES is the collection of candidates to match.  See
+`completing-read' for its possible values.
+PREDICATE filters matches: they succeed only if it returns non-nil.
+REQUIRE-MATCH non-nil means the input must match a candidate.
+
+The display is updated with each minibuffer keystroke during
+minibuffer completion.
+
+Prospective completion suffixes (if any) are displayed, bracketed by
+\"()\", \"[]\", or \"{}\".  The choice of brackets is as follows:
+
+  \(...) - A single prospect is identified, and matching is enforced.
+  \[...] - A single prospect is identified, and matching is optional.
+  \{...} - Multiple prospects are indicated, and further input is
+          needed to distinguish a single one.
+
+The displays for unambiguous matches have ` [ Matched ]' appended
+\(whether complete or not), or ` \[ No matches ]', if no eligible
+matches exist.  Keybindings for uniquely matched commands are
+shown within brackets, [] (without the word \"Matched\"), if there is
+room.
+
+When more than one completion is available, the total number precedes
+the suffixes display, like this:
+
+  M-x forw    14 (ard-) { char line list...}
+
+In Icicle mode:
+ * The current Icicles sort order is used.
+ * When cycling candidates and you change direction, the number of
+   other cycling candidates is shown, as `(N more)'.  For example:
+
+   M-x forward-line   [Matched]  (13 more)."
+    ;; `concat'/`mapconcat' is the slow part.
+    (let* ((non-essential                    t)
+	   (minibuffer-completion-table      candidates)
+	   (minibuffer-completion-predicate  predicate)
+	   (icyp                             (and (boundp 'icicle-mode)  icicle-mode))
+           (open-bracket                     (if require-match "("   " ["))
+           (close-bracket                    (if require-match ") "  "] "))
+           (md                               (completion--field-metadata (icomplete--field-beg)))
+           (comps                            (icompletep-completion-all-sorted-completions
+                                              (icomplete--field-beg) (icomplete--field-end)
+                                              (and icyp  #'icicle-reversible-sort)))
+           (last                             (and (consp comps)  (last comps)))
+           (base-size                        (cdr last))
+           nb-candidates nb-cands-string)
+      (if (not (consp comps))
+          (format "\t%sNo matches%s" open-bracket close-bracket)
+        (when last (setcdr last ()))
+        (when (fboundp 'completion-pcm--filename-try-filter) ; Emacs 23+ - bug #34070.
+          (if (and minibuffer-completing-file-name  icomplete-with-completion-tables)
+              (setq comps                            (completion-pcm--filename-try-filter comps)
+                    icomplete--filtered-completions  comps)
+            (setq icomplete--filtered-completions  ())))
+        (setq nb-candidates    (length comps)
+              nb-cands-string  (if (< nb-candidates 2) "" (format "%7d " nb-candidates)))
+        (let* ((most-try       (if (and base-size  (> base-size 0))
+                                   (completion-try-completion
+                                    name candidates predicate (length name) md)
+                                 ;; If COMPS are 0-based, the result should be the same with COMPS.
+                                 (completion-try-completion name comps nil (length name) md)))
+               (most           (if (consp most-try) (car most-try) (if most-try (car comps) "")))
+               ;; Compare NAME & MOST, to determine if NAME is a prefix of MOST, or something else.
+               (compare        (compare-strings name nil nil most nil nil completion-ignore-case))
+               (determ         (and (not (or (eq t compare)  (eq t most-try)
+                                             (= (setq compare  (1- (abs compare))) (length most))))
+                                    (concat open-bracket
+                                            (cond ((= compare (length name)) ; NAME is a prefix
+                                                   (substring most compare))
+                                                  ((< compare 5) most)
+                                                  (t (concat "..." (substring most compare))))
+                                            close-bracket)))
+               (prospects-len  (+ (if (and icyp  (icicle-completing-p))
+                                      2 ; for `icicle-completion-prompt-overlay'
+                                    0)
+                                  (string-width (buffer-string)) ; for prompt
+                                  (string-width nb-cands-string)
+                                  (length determ) ; for determined part
+                                  2     ; for "{ "
+                                  -2    ; for missing last "  " after last candidate
+                                  5))	; for "... }"
+               ;; Max total length to use, including the minibuffer content.
+               (prospects-max  (* (+ icomplete-prospects-height
+                                     ;; If the minibuffer content already uses up more than
+                                     ;; one line, increase the allowable space accordingly.
+                                     (/ prospects-len (window-width)))
+                                  (window-width)))
+               ;; Find the common prefix among COMPS.
+               ;; Cannot use the optimization below because its assumptions are not always true,
+               ;; e.g. when completion-cycling (Emacs bug #10850):
+               ;; (if (eq t (compare-strings (car comps) nil (length most) most nil nil
+               ;;                            completion-ignore-case))
+               ;;     (length most) ; Common case.
+               ;; Else, use try-completion.
+               (prefix         (and icomplete-hide-common-prefix  (try-completion "" comps)))
+               (prefix-len     (and (stringp prefix)
+                                    ;; Hide prefix only if the info is already displayed via `most'.
+                                    (string-prefix-p prefix most 'IGNORE-CASE)
+                                    (string-width prefix)))
+               (prospects      ())
+               (keys           ())
+               (limit          nil)
+               (most-is-exact  nil)
+               prompt  prompt-rest  comp)
+
+          (when determ (put-text-property 0 (length determ) 'face 'icompletep-determined determ))
+          (if (or (eq most-try t)  (not (consp (cdr comps))))
+              (setq prospects  ())
+
+            ;; @@@@@@@@ ???????????
+            (when (member name comps)
+              ;; NAME is complete but not unique.  This scenario poses following UI issues:
+              ;; - When `icomplete-hide-common-prefix' is non-nil, NAME is stripped empty.
+              ;;   This would make the entry inconspicuous.
+              ;; - Due to sorting of completions, NAME may not be the first of the prospects
+              ;;   and could be hidden deep in the displayed string.
+              ;; - Because of `icomplete-prospects-height', NAME may not even be displayed.
+              ;;
+              ;; So provide a visual cue to user via an "empty string" in the try completion field.
+              (setq determ  (concat open-bracket "" close-bracket)))
+            (while (and comps  (not limit))
+              (setq comp   (if prefix-len (substring (car comps) prefix-len) (car comps))
+                    comps  (cdr comps))
+              (cond ((string= comp "") (setq most-is-exact  t))
+                    ((member comp prospects))
+                    (t (setq prospects-len  (+ (string-width comp)
+                                               (string-width icomplete-separator)
+                                               prospects-len))
+                       (if (< prospects-len prospects-max) (push comp prospects) (setq limit  t))))))
+          ;; Restore BASE-SIZE info, since `completion-all-sorted-completions' is cached.
+          (when last (setcdr last base-size))
+          (setq prompt-rest
+                (if prospects
+                    (concat "{ " (and most-is-exact  icompletep-exact-separator)
+                            (mapconcat 'identity (nreverse prospects) icomplete-separator)
+                            (and limit  "...")
+                            " }")
+                  (setq keys  (and icomplete-show-key-bindings
+                                   (commandp (intern-soft most))
+                                   (icomplete-get-keys most (eq t most-try))))
+                  (if (eq keys 'TOO-LONG) ; No room even for `[ ... ]'.
+                      ""
+                    (concat " [ " (and (not keys)  "Matched") keys " ]"))))
+          (unless (string= "" prompt-rest)
+            (put-text-property 0 (length prompt-rest) 'face 'icompletep-choices prompt-rest))
+          (cond ((< nb-candidates 2)
+                 (setq prompt  (concat "      " determ prompt-rest)) ; 6 spaces.
+                 (when (eq last-command this-command)
+                   (setq icicle-nb-of-other-cycle-candidates  0))) ; We know now, so reset it.
+                (t
+                 (put-text-property (string-match "\\S-" nb-cands-string)
+                                    (1- (length nb-cands-string))
+                                    'face 'icompletep-nb-candidates nb-cands-string)
+                 (setq prompt  (concat nb-cands-string determ prompt-rest))))
+          (when (stringp keys)          ; Highlight keys.
+            (put-text-property (+ 9 (length determ)) (1- (length prompt))
+                               'face 'icompletep-keys prompt))
+          ;; Append mention of number of other cycle candidates (from `icicles.el').
+          (when (and (boundp 'icicle-last-completion-candidate)
+                     (> icicle-nb-of-other-cycle-candidates 0)
+                     (= 1 nb-candidates)
+                     icicle-last-completion-candidate
+                     (not (eq last-command this-command)))
+            (setq nb-cands-string       ; Reuse the string.
+                  (format "  (%d more)" icicle-nb-of-other-cycle-candidates))
+            (put-text-property (string-match "\\S-" nb-cands-string) (length nb-cands-string)
+                               'face 'icompletep-nb-candidates nb-cands-string)
+            (setq prompt  (concat prompt nb-cands-string)))
+          prompt))))
+
+
+  (defun icompletep-completion-all-sorted-completions (&optional start end
+                                                       sort-function dont-remove-dups)
+    "Like `completion-all-sorted-completions', but with added optional args.
+Non-nil SORT-FUNCTION is a function that sorts the candidates.
+If SORT-FUNCTION is nil, sort per `completion-all-sorted-completions':
+ * per property `cycle-sort-function', if defined
+ * else by shorter length, then by recent use.
+Non-nil DONT-REMOVE-DUPS means do not remove duplicates."
+    (or completion-all-sorted-completions
+        (let* ((start      (or start  (minibuffer-prompt-end)))
+               (end        (or end  (point-max)))
+               (string     (buffer-substring start end))
+               (md         (completion--field-metadata start))
+               (all        (completion-all-completions string  minibuffer-completion-table
+                                                       minibuffer-completion-predicate
+                                                       (- (point) start)  md))
+               (last       (last all))
+               (base-size  (or (cdr last)  0))
+               (all-md     (completion--metadata (buffer-substring-no-properties start (point))
+                                                 base-size md minibuffer-completion-table
+                                                 minibuffer-completion-predicate))
+               (sort-fun   (or sort-function
+                               (completion-metadata-get all-md 'cycle-sort-function))))
+          (when last
+            (setcdr last ())
+            ;; Do the rest after resetting LAST's cdr to (), since we need a proper list.
+            ;; Exclude file names with extensions in `completion-ignored-extensions'.
+            (when (or minibuffer-completing-file-name
+                      (and (boundp 'icicle-abs-file-candidates)  icicle-abs-file-candidates))
+              (let ((ignore-regexp  (regexp-opt completion-ignored-extensions)))
+                (setq all  (cl-delete-if (lambda (fl) (string-match-p ignore-regexp fl)) all))))
+            (unless dont-remove-dups (setq all  (delete-dups all))) ; Delete duplicates.
+            (setq last  (last all)      ; Reset LAST, since it may be a different cons-cell.
+                  all   (if sort-fun
+                            (funcall sort-fun all)
+                          (sort all (lambda (c1 c2) (< (length c1) (length c2)))))) ; Shorter first.
+            (when (and (minibufferp)  (not sort-fun))
+              (let ((hist  (symbol-value minibuffer-history-variable)))
+                (setq all  (sort all (lambda (c1 c2) (> (length (member c1 hist)) ; Recent first.
+                                                        (length (member c2 hist))))))))
+            ;; Cache result.  Not just for speed, but also so repeated calls to
+            ;; `minibuffer-force-complete' can cycle through all possibilities.
+            (completion--cache-all-sorted-completions start end (nconc all base-size)))))))
+
 
 (defvar icompletep-cycling-mode nil)
 (when (boundp 'icomplete-minibuffer-map) ; Emacs 24.4+
@@ -1080,7 +1445,22 @@ Turning it off does not turn Icomplete mode on or off."
           (when icompletep-cycling-mode (icomplete-mode 99)) ; Turn on Icomplete if cycling is on.
           (setq icomplete-minibuffer-map  (and icompletep-cycling-mode
                                            icompletep-ORIG-icomplete-minibuffer-map))))
-  (icompletep-cycling-mode -99))        ; Turn it off by default.
+  (icompletep-cycling-mode -99)         ; Turn it off by default.
+
+  (defadvice icomplete-mode (before icompletep-doc activate)
+    "
+Icomplete+ enhances vanilla Icomplete mode in these ways:
+ * Better display of candidates - highlighting and showing how many.
+ * Shows key bindings for command, optionally including menu bindings.
+ * Does not bind keys for cycling in `icomplete-mode', so you can use
+   those keys normally in the minibuffer.  If you want cycling then
+   enable minor mode `icompletep-cycling-mode'.
+ * Provides support for Icicles:
+   . Respects Icicles sort order, which you can cycle using `C-,'.
+   . When you change direction cycling candidates with Icicles, shows
+     the number of other cycle candidates.")
+
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 
