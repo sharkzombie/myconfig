@@ -4,6 +4,7 @@
 (require 'c-paredit)
 
 (defun my-set-cc-style (name definition)
+  "Adds a style with specified name, and switches all C-mode buffers to it"
   (c-add-style name definition)
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
