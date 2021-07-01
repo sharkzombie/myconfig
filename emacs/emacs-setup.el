@@ -45,6 +45,8 @@
 (require-if-available 'cycle-buffer 'my-cycle-buffer-setup)
 (require-if-available 'my-shell-mode-setup)
 (require-if-available 'my-compile)
+(require-if-available 'my-tempo-setup)
+(require-if-available 'my-ccmode-setup)
 
 ;; =================================== Cycle buffer =====================
 

@@ -36,17 +36,17 @@ Example usage:
                                    (tempo-use-tag-list 'tags2)))))
 ")
 
-(defadvice tempo-insert-template (after tempo-go-insert-mode activate)
-  (when (evil-normal-state-p)
-    (evil-insert-state 1)))
+;; (defadvice tempo-insert-template (after tempo-go-insert-mode activate)
+;;   (when (evil-normal-state-p)
+;;     (evil-insert-state 1)))
 
-(defadvice tempo-forward-mark (after tempo-go-insert-mode activate)
-  (when (evil-normal-state-p)
-    (evil-insert-state 1)))
+;; (defadvice tempo-forward-mark (after tempo-go-insert-mode activate)
+;;   (when (evil-normal-state-p)
+;;     (evil-insert-state 1)))
 
-(defadvice tempo-backward-mark (after tempo-go-insert-mode activate)
-  (when (evil-normal-state-p)
-    (evil-insert-state 1)))
+;; (defadvice tempo-backward-mark (after tempo-go-insert-mode activate)
+;;   (when (evil-normal-state-p)
+;;     (evil-insert-state 1)))
 
 (define-key evil-motion-state-map " " 'tempo-forward-mark)
 
@@ -169,9 +169,8 @@ Example usage:
     (setq tempo-match-finder 'my-c-match-finder)))
 
 (defun enable-tempo-forward/back-mark ()
-  (when (fboundp 'evil-define-key)
-    (evil-define-key '(normal motion insert visual) 'local "\M-n" 'tempo-forward-mark)
-    (evil-define-key '(normal motion insert visual) 'local "\M-p" 'tempo-backward-mark)))
+  (evil-define-key '(normal motion insert visual) 'local "\M-n" 'tempo-forward-mark)
+  (evil-define-key '(normal motion insert visual) 'local "\M-p" 'tempo-backward-mark))
 
 (enable-tempo-forward/back-mark)
 

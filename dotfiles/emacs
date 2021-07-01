@@ -5,6 +5,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(compilation-ask-about-save nil)
  '(cycle-buffer-esc-key nil)
  '(cycle-buffer-follow t)
  '(cycle-buffer-start-with-current nil)

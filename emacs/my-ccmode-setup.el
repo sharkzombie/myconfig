@@ -1,5 +1,5 @@
 (require 'cc-mode)
-(require tempo)
+(require 'tempo)
 
 (when (require-if-available 'c-paredit)
   (c-paredit-mode 1))

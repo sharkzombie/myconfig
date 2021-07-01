@@ -285,13 +285,14 @@ If in a character literal, do nothing.  This prevents accidentally
 	     (undo-boundary)
              (c-electric-brace arg)
              (let* ((mark (point-marker)))
-               (tempo-insert-mark mark)
+               ;; (tempo-insert-mark mark)
                (save-excursion
                  (insert ?\n ?\})
                  (indent-according-to-mode)
                  (if insert-semicolon
                      (insert ?\;))
                  ;;(c-newline-and-indent)
+		 ;; (end-of-line)
                  (tempo-insert-mark (point-marker)))
                (goto-char mark)))))))
 
