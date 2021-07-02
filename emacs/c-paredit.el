@@ -94,7 +94,8 @@ If there was a margin comment after the closing delimiter, preserve it
   ;; symbol, other quote, or non-matching parenthesis delimiter (i.e. a
   ;; close when want an open the string or an open when we want to
   ;; close the string), do insert a space.
-  (and nil
+  (and
+  ;; nil
        (not (if endp (eobp) (bobp)))
        (memq (char-syntax (if endp
                               (char-after)
