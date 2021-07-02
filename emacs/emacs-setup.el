@@ -26,6 +26,25 @@
   (my-color-theme))
 
 
+;; ================ some basic settings =======================
+(setq-default indent-tabs-mode nil)    ;; Tabs as spaces
+(setq-default tab-always-indent t)
+
+
+;; do I need below?  THey were in old my-emacs-setup.el
+
+;; (setq-default help-char 0)      ;; Allow using Ctrl-H as normal key
+;; (setq help-char 0)              ;; Allow using Ctrl-H as normal key
+;; (global-set-key "\M-gh" help-map)
+;; (setq help-event-list '(f1))
+;; (setq interprogram-cut-function 'x-select-text)
+;; (setq x-select-enable-clipboard t)
+
+;; ;; ok someone keeps resetting this shit
+;; (setq auto-hscroll-mode t)
+;; (setq-default auto-hscroll-mode t)
+
+
 ;; =============================== utils, compile ====================
 
 (require-if-available 'my-utils)
