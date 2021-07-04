@@ -1,2 +1,7 @@
 
 constant ${:-constant}
+remove longest match suffix from array of zsh packagase:  ${packages%%-*}
+mnemonic  for suffix/prefix prefix is \#, or # uno (number uno), comes before value
+mnemonic  for suffix/prefix sufiix is \%, or uno % (uno percent), comes after value
+
+    
