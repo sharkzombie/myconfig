@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /usr/local
+zip -ruy ~/cygwin-usr-local-archive.zip . 
