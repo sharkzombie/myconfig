@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# requires ldd and cygcheck
+if [[ -z $1 ]] ; then
+    print "Usage: $0 <program>"
+    exit 1
+fi
+
+program="$(whence -p $1)"
+if [[ -z $program ]] ; then
+    print "Program \`$1\' not found"
+    exit 2
+fi
+
+
+files=($(ldd $program | awk '{print $3}'))  || exit
+packages=($(cygcheck -f $files | sort | uniq ))
+packages=(${packages%%-*})
+print $packages
+
