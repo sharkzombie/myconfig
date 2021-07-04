@@ -1,0 +1,1 @@
+setacl -on "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" -ot reg -actn setowner -ownr "n:Administrators"
