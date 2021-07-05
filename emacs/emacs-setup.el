@@ -66,6 +66,7 @@
 (require-if-available 'my-compile)
 (require-if-available 'my-tempo-setup)
 (require-if-available 'my-ccmode-setup)
+(require-if-available 'my-cmake-setup)
 
 ;; =================================== Cycle buffer =====================
 
