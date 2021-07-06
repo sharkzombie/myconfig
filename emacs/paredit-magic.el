@@ -994,13 +994,16 @@ structure move functions"
 ;; (add-hook 'after-change-functions 'paredit-magic-after-change-hook)
 
 (defun paredit-magic-mode (&optional arg)
+ "Enable or toggle paredit magic mode editing"
   (interactive)
-  (setq paredit-magic-mode (or arg (not paredit-magic-mode)))
+  (setq paredit-magic-mode (mm/should-mode-be-enabled-p arg paredit-magic-mode))
   (message "Paredit magic mode %s" (if paredit-magic-mode "enabled" "disabled"))
-  (add-hook 'post-command-hook 'paredit-magic-post-command-hook)
-  (add-hook 'pre-command-hook 'paredit-magic-pre-command-hook))
-
-
+  (cond (paredit-magic-mode
+         (add-hook 'post-command-hook 'paredit-magic-post-command-hook)
+         (add-hook 'pre-command-hook 'paredit-magic-pre-command-hook))
+        (t (remove-hook 'post-command-hook 'paredit-magic-post-command-hook)
+           (remove-hook 'pre-command-hook 'paredit-magic-pre-command-hook))))
+           
 (defun my-paredit-forward-slurp-and-add (&optional arg)
   (interactive)
   (my-paredit-forward-slurp-sexp arg)

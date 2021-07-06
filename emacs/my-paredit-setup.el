@@ -1,8 +1,18 @@
 
+(require 'eldoc)
 (require 'paredit)
 (require 'paredit-magic)
-(enable-paredit-mode)
-(paredit-magic-mode 1)
+
+
+(defun mm/magic-lisp-editing (&optional arg)
+  "Common function to enable paredit magic editing"
+  (interactive)
+  (cond ((mm/should-mode-be-enabled-p arg paredit-magic-mode)
+         (unless paredit-mode (paredit-mode +1))
+         (unless eldoc-mode (eldoc-mode +1))
+         (unless paredit-magic-mode (paredit-magic-mode +1)))
+        (t (paredit-magic-mode -1)
+           (paredit-mode -1))))
 
 (setq comment-fill-column 120)
 

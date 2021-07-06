@@ -414,5 +414,6 @@ Example usage:
                        "Insert interactive defun"
                        'emacs-lisp-tempo-tags)
 
-  
+
+(provide 'my-tempo-setup)
 

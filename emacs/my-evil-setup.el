@@ -166,8 +166,8 @@ mapping will always be the ESC prefix map."
 ;; (define-key evil-visual-state-map ";c" 'comment-dwim)
 
 
-;; prevent evil from entering insert state in read
 (defun my-can-modify-text ()
+  "Verifies if are able to modify text at pointp"
   (let (ok) 
     (condition-case nil 
         (with-silent-modifications 
@@ -182,7 +182,7 @@ mapping will always be the ESC prefix map."
              (or (not (numberp arg))
                  (not (minusp arg)))
              (not (my-can-modify-text)))
-    (error "Read only text")))
+    (error "Can't enter insert state on read only text")))
 
 ;; I like my C-w to do same thing in insert mode
 (evil-define-key '(insert) 'global "\C-w" evil-window-map)

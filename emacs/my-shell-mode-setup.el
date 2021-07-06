@@ -134,7 +134,7 @@
 ;;;
 (require 'ansi-color)
 
-(defun mgm-after-shell-mode ()
+(defun mm/after-shell-mode ()
   ;; remove weird default highlihitng that shell mode uses
   (font-lock-remove-keywords nil '(("^[^ 	\n]+:.*" . font-lock-string-face)))
   (ansi-color-for-comint-mode-on))

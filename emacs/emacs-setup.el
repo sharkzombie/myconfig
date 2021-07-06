@@ -53,22 +53,55 @@
 (when (or (require-if-available 'cua-base ) (require-if-available 'cua))
   (cua-mode 1))
 
-;; =================================== Evil, CUA, cycle-buffer, variou =============================
+;; =================================== Evil =============================
 (unless (package-installed-p 'evil)
   (package-install 'evil))
 
 (unless (require-if-available 'evil)
   (error "Rest of this file requires evil, figure out why evil is not working"))
 
+(defun my-after-major-mode-hook (&optional arg)
+  "My `after-change-major-mode-hook' that runs mm/after-MODE-major-mode function if it exists"
+  (let ((symbol (intern (format "mm/after-%s" major-mode))))
+    (when (fboundp symbol)
+      (ignore-errors
+        (funcall symbol)
+        (evil-normalize-keymaps)))))
+
+(add-hook 'after-change-major-mode-hook 'my-after-major-mode-hook)
+
 (require-if-available 'my-evil-setup)
+
+;; =================== cycle-buffer and windows ========================
+
 (require-if-available 'cycle-buffer 'my-cycle-buffer-setup)
-(require-if-available 'my-shell-mode-setup)
+
+;; why did I have below? Seems pretty old code
+;; seems to be protection against quit-window called with NIL window
+
+;; (defadvice quit-window (around mm/quit-window-kills-window activate)
+;;   (if (and (null window)
+;;            (not (one-window-p t)))
+;;       (setq window (selected-window)))
+;;   (setq ad-return-value ad-do-it))
+
+;; ============================= Lisp editing ==========================
+
+(when (require-if-available 'my-paredit-setup)
+  (defun mm/after-emacs-lisp-mode ()
+    (mm/magic-lisp-editing +1))
+  (defun mm/after-lisp-interaction-mode ()
+    (mm/magic-lisp-editing +1))
+  (defun mm/after-lisp-mode ()
+    (mm/magic-lisp-editing +1)))
+
+;; ============================= various other modes setup =============
 (require-if-available 'my-compile)
 (require-if-available 'my-tempo-setup)
 (require-if-available 'my-ccmode-setup)
+(require-if-available 'my-shell-mode-setup)
 (require-if-available 'my-cmake-setup)
 
-;; =================================== Cycle buffer =====================
 
 
 ;; Editing file without extension but with zsh in their name

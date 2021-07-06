@@ -52,5 +52,15 @@ For example (log-expr a b) will log 'a=123 b=321'
 
 (defalias 'log-expr 'log-sexp)
 
+(unless (fboundp 'ignore-errors)
+  (defmacro ignore-errors (body)
+    (condition-case err
+                    (progn ,@body)
+      (error nil))))
+
+(defun mm/should-mode-be-enabled-p (arg mode)
+  "Utility for functions that enable or toggle a minor mode, that determines if mode should be on based on arg and status"
+  (if (null arg) (not mode)
+    (plusp arg)))
 
 (provide 'my-utils)
