@@ -88,7 +88,9 @@ predictive mode."
 
 (defun show-point-modeline-update nil
   ;; Update variable storing point position for display in mode line.
-  (setq show-point-value (format "%d" (point))))
+  (unless (eql (point) show-point-value)
+    (setq show-point-value (format "%d" (point)))
+    (redraw-modeline)))
 
 
 ;;; show-point-mode.el ends here
