@@ -53,6 +53,8 @@
 (when (or (require-if-available 'cua-base ) (require-if-available 'cua))
   (cua-mode 1))
 
+(when (require-if-available 'undo-tree)
+  (global-undo-tree-mode 1))
 ;; =================================== Evil =============================
 (unless (package-installed-p 'evil)
   (package-install 'evil))

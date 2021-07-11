@@ -11,6 +11,7 @@
  '(cycle-buffer-start-with-current nil)
  '(cycle-buffer-wrap nil)
  '(evil-symbol-word-search t)
+ '(evil-undo-system (quote undo-tree))
  '(evil-want-fine-undo t)
  '(find-file-visit-truename t)
  '(hc-font-lock-override t)
