@@ -18,11 +18,11 @@
            (c-offsets-alist
             (inline-open . 0)
             (substatement-open . 0)
-	    (innamespace . 0)
-	    )
-           (c-hanging-braces-alist (brace-list-open)
-                                   (brace-entry-open)
-                                   (statement-cont)
+	    (innamespace . 0))
+           (c-hanging-braces-alist (brace-list-open after)
+                                   (defun-open after)
+                                   (brace-entry-open after)
+                                   (statement-cont after)
                                    (substatement-open after)
                                    (statement-case-open after)
                                    (block-close . c-snug-do-while)
@@ -38,6 +38,7 @@
                            one-liner-defun
                            defun-close-semi
                            list-close-comma
+                           space-before-funcall
                            empty-defun-braces
                            scope-operator
                            compact-empty-funcall
@@ -87,7 +88,14 @@
       (insert ?\;))
      ((c-paredit-in-string-p literal)
       (insert ?\;))
-     ((looking-at "[ \t]*\\\\?$")       ; end of line
+     ((looking-at "[ \t]*\\\\?$")
+      ;; at end of line
+      (when (looking-back "[)}]" (line-beginning-position))
+        ;; if after the closing bracket, delete the bracket and
+        ;; insert it again via electric function to get the effect
+        (goto-char (match-beginning 0))
+        (c-paredit-reclose-pair t nil))
+      ;; now do the semicolon
       (c-electric-semi&comma arg))
      (t
       (let* ((start-pos (point))
@@ -102,24 +110,18 @@
              (stmt-beg (save-excursion (call-interactively 'c-beginning-of-statement)
                                        (point)))
              (done nil))
-        (goto-char stmt-beg)
         (while (and (not done)
-                    (c-syntactic-re-search-forward "\\((\\|\\[\\)" nil t nil))
-          (let* ((open (char-before))
-                 (match (c-syntactic-re-search-forward 
-                         (format "%c"
-                                 (if (eql open ?\() ?\) ?\]))
-                         nil t t)))
-            (if (not match)
-                (error "Unmatched %c in the current statement" open)
-              (when (> (point) start-pos)
-                (setq done t)))))
+                    (c-syntactic-re-search-forward "\\([)}]\\)" stmt-end t nil))
+          (goto-char (1- (point)))
+          (c-paredit-reclose-pair nil nil)
+          (when (looking-at "[ \t]*\\\\?$")
+            (setq done t)))
         (goto-char (min stmt-end (max start-pos (point))))
         (cond ((> (point) stmt-end)
                (error "Can't insert semi-colon here"))
               ((and for-statement-p
                     (looking-back ";")  ;
-               (tempo-forward-mark)))
+                    (tempo-forward-mark)))
               (t
                (when (looking-back ";")
                  (delete-char -1))

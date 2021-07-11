@@ -29,28 +29,45 @@
 (defun c-paredit-in-string-p (literal)
   (eq literal 'string))
 
-(defun c-paredit-move-past-close (close)
+(defun c-paredit-cc-electric-func-for-close (close)
+  "Return the CC-mode electric function responsible for specified close of brackets"
+  (cond ((eql close ?\)) 'c-electric-paren)
+        ((eql close ?\}) 'c-electric-brace)
+        ((eql close ?\>) 'c-electric-lt-gt)))
+
+(defun c-paredit-reclose-pair (noblink arg)
+  "Re-close bracket after point"
+  (let* ((close (char-after (point)))
+         (last-command-event close)
+         (cc-electric-func (c-paredit-cc-electric-func-for-close close))
+         (blink-paren-function (if noblink nil blink-paren-function)))
+    (delete-char 1)
+    (funcall cc-electric-func arg)))
+
+(defun c-paredit-move-past-close (close arg)
   "Move past the closing parentesis"
  (let ((literal (c-in-literal)))
    (if (or (c-paredit-in-string-p literal)
            (c-paredit-in-comment-p literal))
        (insert close)
      (let ((result (c-syntactic-re-search-forward
-                    (format "%c" close) nil t nil)))
-       (when result
-         (goto-char (point)))))))
+                    (format "%c" close) nil t nil))
+           (cc-electric-func
+            (c-paredit-cc-electric-func-for-close close)))
+       (if (not result)
+           (if cc-electric-func
+               (funcall cc-electric-func arg)
+             (self-insert-command (prefix-numeric-value arg)))
+         (if (not cc-electric-func)
+             (goto-char (point))
+           (goto-char (1- (point)))
+           (c-paredit-reclose-pair nil arg)))))))
 
-(defun c-paredit-move-past-close-and-newline (close)
+(defun c-paredit-move-past-close-and-newline (close arg)
   "Move past the closing parentesis"
-  (let ((literal (c-in-literal)))
-    (if (or (c-paredit-in-string-p literal)
-            (c-paredit-in-comment-p literal))
-        (insert close)
-      (let ((result (c-syntactic-re-search-forward
-                     (format "%c" close) nil t nil)))
-        (when result
-          (goto-char (1+ (point)))
-          (newline-and-indent))))))
+  (c-paredit-move-past-close close arg)
+  (goto-char (1+ (point)))
+  (newline-and-indent))
 
 (eval-and-compile
   
@@ -73,21 +90,21 @@ If in a character literal, do nothing.  This prevents changing what was
                   (insert ,open))
                  (t
                   (c-paredit-insert-pair n ,open ,close 'goto-char)))))
-       (defun ,(paredit-conc-name "c-paredit-close-" name) ()
+       (defun ,(paredit-conc-name "c-paredit-close-" name) (arg)
          ,(concat "Move past one closing delimiter and reindent.
 \(Agnostic to the specific closing delimiter.)
 If in a string or comment, insert a single closing " name ".
 If in a character literal, do nothing.  This prevents changing what was
   in the character literal to a meaningful delimiter unintentionally.")
-         (interactive)
-         (c-paredit-move-past-close ,close))
-       (defun ,(paredit-conc-name "c-paredit-close-" name "-and-newline") ()
+         (interactive "*P")
+         (c-paredit-move-past-close ,close arg))
+       (defun ,(paredit-conc-name "c-paredit-close-" name "-and-newline") (arg)
          ,(concat "Move past one closing delimiter, add a newline,"
                   " and reindent.
 If there was a margin comment after the closing delimiter, preserve it
   on the same line.")
-         (interactive)
-         (c-paredit-move-past-close-and-newline ,close)))))
+         (interactive "*P")
+         (c-paredit-move-past-close-and-newline ,close arg)))))
 
 (defun c-paredit-space-for-delimiter-p (endp delimiter)
   ;; If at the buffer limit, don't insert a space.  If there is a word,
@@ -128,7 +145,7 @@ If there was a margin comment after the closing delimiter, preserve it
 (define-c-paredit-pair ?\( ?\) "parenthesis")
 (define-c-paredit-pair ?\[ ?\] "bracket")
 (define-c-paredit-pair ?\{ ?\} "brace")
-(define-c-paredit-pair ?\< ?\> "brocket")
+(define-c-paredit-pair ?\< ?\> "lt-gt")
 
 (defun c-paredit-backward-delete (&optional arg)
   "Delete a character backward or move backward over a delimiter.
@@ -284,7 +301,12 @@ If in a character literal, do nothing.  This prevents accidentally
                           (looking-at "class\\|struct")))
                (setq insert-semicolon t))
 	     (undo-boundary)
+             (when (looking-back ")" (line-beginning-position))
+               (insert " "))
              (c-electric-brace arg)
+
+             ;; let other c-electric-brace do the work
+             
              (let* ((mark (point-marker)))
                ;; (tempo-insert-mark mark)
                (save-excursion
@@ -293,7 +315,7 @@ If in a character literal, do nothing.  This prevents accidentally
                  (if insert-semicolon
                      (insert ?\;))
                  ;;(c-newline-and-indent)
-		 ;; (end-of-line)
+	         ;; (end-of-line)
                  (tempo-insert-mark (point-marker)))
                (goto-char mark)))))))
 
