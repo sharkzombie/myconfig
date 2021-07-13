@@ -6,6 +6,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(compilation-ask-about-save nil)
+ '(compilation-auto-jump-to-first-error t)
+ '(compilation-scroll-output (quote first-error))
+ '(compilation-window-height 10)
  '(cycle-buffer-esc-key nil)
  '(cycle-buffer-follow t)
  '(cycle-buffer-start-with-current nil)
@@ -15,6 +18,7 @@
  '(evil-want-fine-undo t)
  '(find-file-visit-truename t)
  '(hc-font-lock-override t)
+ '(next-error-highlight t)
  '(package-selected-packages
    (quote
     (cmake-mode cedit undo-tree csharp-mode yaml-mode evil-paredit egg cff evil)))
@@ -22,7 +26,8 @@
    (quote
     ((whitespace-action warn-read-only auto-cleanup)
      (whitespace-newline . t)
-     (whitespace-style face trailing lines-tail space-before-tab indentation)))))
+     (whitespace-style face trailing lines-tail space-before-tab indentation))))
+ '(split-width-threshold 500))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
