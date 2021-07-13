@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+cd ~/Youtube
+youtube-dl -x --embed-thumbnail --audio-format mp3  --audio-quality 0 -f bestaudio --write-info-json --add-metadata -o '%(artist)s - %(album)s - %(track)s.%(ext)s' $*
