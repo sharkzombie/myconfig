@@ -103,6 +103,7 @@
 (require-if-available 'my-ccmode-setup)
 (require-if-available 'my-shell-mode-setup)
 (require-if-available 'my-cmake-setup)
+(require-if-available 'my-vc-setup) 
 
 
 
