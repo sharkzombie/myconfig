@@ -174,6 +174,29 @@
       (setq prev (point)))))
 
 
+
+(defvar my-egg-restored-pt nil
+  "Point restored by egg-restore-section-visibility")
+
+
+(defadvice egg-restore-section-visibility (around remember-point-after-restoring-section-visibility)
+  (setq ad-return-value ad-do-it)
+  (setq my-egg-restored-pt (point)))
+
+(defadvice egg-diff-section-cmd-unstage (before ix-point)
+  (setq my-egg-restored-pt nil))
+
+(defadvice egg-diff-section-cmd-stage (before fix-point)
+  (setq my-egg-restored-pt nil))
+
+(defadvice egg-diff-section-cmd-unstage (after fix-point)
+  (when my-egg-restored-pt
+    (goto-char my-egg-restored-pt)))
+
+(defadvice egg-diff-section-cmd-stage (after fix-point)
+  (when my-egg-restored-pt
+    (goto-char my-egg-restored-pt)))
+
 ;; done in the end of my-emacs-setup anyway
 ;; (viper-apply-major-mode-modifiers)
 
