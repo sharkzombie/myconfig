@@ -46,7 +46,7 @@
 
 (defun c-paredit-move-past-close (close arg)
   "Move past the closing parentesis"
- (let ((literal (c-in-literal)))
+ (let ((literal (my-c-in-literal)))
    (if (or (c-paredit-in-string-p literal)
            (c-paredit-in-comment-p literal))
        (insert close)
@@ -84,7 +84,7 @@ If in a string or a comment, insert a single " name ".
 If in a character literal, do nothing.  This prevents changing what was
   in the character literal to a meaningful delimiter unintentionally.")
          (interactive "P")
-         (let ((literal (c-in-literal)))
+         (let ((literal (my-c-in-literal)))
            (cond ((or (c-paredit-in-string-p literal)
                       (c-paredit-in-comment-p literal))
                   (insert ,open))
@@ -189,7 +189,7 @@ If on a closing S-expression delimiter, refuse to delete unless the
 With a prefix argument, simply delete a character forward, without
   regard for delimiter balancing."
   (interactive "P")
-  (let ((literal (c-in-literal)))
+  (let ((literal (my-c-in-literal)))
     (cond ((or arg (eobp))
            (delete-char 1))
           ((c-paredit-in-string-p literal)
@@ -234,7 +234,7 @@ If in a character literal, do nothing.  This prevents accidentally
   changing a what was in the character literal to become a meaningful
   delimiter unintentionally."
   (interactive "P")
-  (let ((literal (c-in-literal)))
+  (let ((literal (my-c-in-literal)))
     (cond ((c-paredit-in-string-p literal)
            (let* ((start+end (paredit-string-start+end-points))
                   (type (char-after (car start+end)))
@@ -261,7 +261,7 @@ If in a character literal, do nothing.  This prevents accidentally
   changing a what was in the character literal to become a meaningful
   delimiter unintentionally."
   (interactive "P")
-  (let ((literal (c-in-literal)))
+  (let ((literal (my-c-in-literal)))
     (cond ((c-paredit-in-string-p literal)
            (let* ((start+end (paredit-string-start+end-points))
                   (type (char-after (car start+end)))
@@ -286,7 +286,7 @@ If in a character literal, do nothing.  This prevents accidentally
 (defun c-paredit-electric-brace (arg)
   "Insert pair of braces, first brace is inserted by calling `c-electric-brace'"
   (interactive "*P")
-  (let ((literal (c-in-literal)))
+  (let ((literal (my-c-in-literal)))
     (cond ((or (c-paredit-in-string-p literal)
                (c-paredit-in-comment-p literal))
            (insert ?\{))
@@ -330,7 +330,7 @@ If in a character literal, do nothing.  This prevents accidentally
 (defun c-paredit-close-parenthesis (arg)
   "Close parentesis"
   (interactive "*P")
-  (c-paredit-move-past-close ?\))
+  (c-paredit-move-past-close ?\) arg)
   (let* ((syntax nil)
          (dummy (save-excursion
                    (c-skip-ws-forward)
@@ -348,7 +348,7 @@ If in a character literal, do nothing.  This prevents accidentally
 (defun c-paredit-close-brace (arg)
   "Close brace"
   (interactive "*P")
-  (c-paredit-move-past-close ?\})
+  (c-paredit-move-past-close ?\} arg)
   (when (looking-back "}")
     (delete-char -1)
     (let ((last-command-event ?\}))
@@ -376,7 +376,7 @@ If in a character literal, do nothing.  This prevents accidentally
 ;;   (let* ((opoint (point))
 ;;          (line-start (line-beginning-position))
 ;;          (literal (progn (goto-char (line-end-position))
-;;                          (c-in-literal)))
+;;                          (my-c-in-literal)))
 ;;          start end)
 ;;     (cond ((or (c-paredit-in-string-p literal)
 ;;                (c-paredit-in-comment-p literal))

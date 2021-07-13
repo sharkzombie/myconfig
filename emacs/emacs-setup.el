@@ -63,8 +63,8 @@
   (error "Rest of this file requires evil, figure out why evil is not working"))
 
 (defun my-after-major-mode-hook (&optional arg)
-  "My `after-change-major-mode-hook' that runs mm/after-MODE-major-mode function if it exists"
-  (let ((symbol (intern (format "mm/after-%s" major-mode))))
+  "My `after-change-major-mode-hook' that runs my-after-MODE-major-mode function if it exists"
+  (let ((symbol (intern (format "my-after-%s" major-mode))))
     (when (fboundp symbol)
       (ignore-errors
         (funcall symbol)
@@ -81,7 +81,7 @@
 ;; why did I have below? Seems pretty old code
 ;; seems to be protection against quit-window called with NIL window
 
-;; (defadvice quit-window (around mm/quit-window-kills-window activate)
+;; (defadvice quit-window (around my-quit-window-kills-window activate)
 ;;   (if (and (null window)
 ;;            (not (one-window-p t)))
 ;;       (setq window (selected-window)))
@@ -90,12 +90,12 @@
 ;; ============================= Lisp editing ==========================
 
 (when (require-if-available 'my-paredit-setup)
-  (defun mm/after-emacs-lisp-mode ()
-    (mm/magic-lisp-editing +1))
-  (defun mm/after-lisp-interaction-mode ()
-    (mm/magic-lisp-editing +1))
-  (defun mm/after-lisp-mode ()
-    (mm/magic-lisp-editing +1)))
+  (defun my-after-emacs-lisp-mode ()
+    (my-magic-lisp-editing +1))
+  (defun my-lisp-interaction-mode ()
+    (my-magic-lisp-editing +1))
+  (defun my-lisp-mode ()
+    (my-magic-lisp-editing +1)))
 
 ;; ============================= various other modes setup =============
 (require-if-available 'my-compile)

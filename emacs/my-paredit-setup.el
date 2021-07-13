@@ -4,10 +4,10 @@
 (require 'paredit-magic)
 
 
-(defun mm/magic-lisp-editing (&optional arg)
+(defun my-magic-lisp-editing (&optional arg)
   "Common function to enable paredit magic editing"
   (interactive)
-  (cond ((mm/should-mode-be-enabled-p arg paredit-magic-mode)
+  (cond ((my-should-mode-be-enabled-p arg paredit-magic-mode)
          (unless paredit-mode (paredit-mode +1))
          (unless eldoc-mode (eldoc-mode +1))
          (unless paredit-magic-mode (paredit-magic-mode +1)))

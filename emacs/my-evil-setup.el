@@ -102,6 +102,7 @@ mapping will always be the ESC prefix map."
 (evil-define-key '(normal motion) 'global "zo" 'find-file)
 (evil-define-key '(normal motion) 'global "zk" 'my-quit-restore-window)
 (evil-define-key '(normal motion) 'global "zb" 'bury-buffer)
+(evil-define-key '(normal motion) 'global "zE" 'eval-expression)
 ;; s bindings 
 (evil-define-key '(normal motion) 'global "s" nil)
 (evil-define-key '(normal motion) 'global "sg" 'grep)
@@ -128,7 +129,7 @@ mapping will always be the ESC prefix map."
 ;; z map commands
 ;; z key map bindings
 ;;(define-key evil-z-map "o" 'find-file)
-;;(define-key evil-z-map "k" 'mm/zk)
+;;(define-key evil-z-map "k" 'my-zk)
 ;;(define-key evil-z-map "b" 'bury-buffer)
 
 ;; s map setup

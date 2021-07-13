@@ -58,7 +58,7 @@ For example (log-expr a b) will log 'a=123 b=321'
                     (progn ,@body)
       (error nil))))
 
-(defun mm/should-mode-be-enabled-p (arg mode)
+(defun my-should-mode-be-enabled-p (arg mode)
   "Utility for functions that enable or toggle a minor mode, that determines if mode should be on based on arg and status"
   (if (null arg) (not mode)
     (plusp arg)))

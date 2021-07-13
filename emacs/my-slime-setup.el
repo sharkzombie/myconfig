@@ -207,7 +207,7 @@
   (let ((inferior-lisp-program "/home/max/cvs/sbcl2/run-sbcl"))
     (slime args)))
 
-(defun mm/sbcl-core-for-file (file &optional type)
+(defun my-sbcl-core-for-file (file &optional type)
   "Return the Lisp image core file, for the specified executable"
   (let ((fname (file-truename file)))
     (or fname (error "Unable to find truename of %S" file))
@@ -215,28 +215,28 @@
            (name (expand-file-name (format "~/.cache/common-lisp/%s.%s" safe (or type "sbcl_core")))))
       name)))
 
-(defun mm/run-sbcl-slime-with-core-init (&optional port-filename coding-system)
+(defun my-run-sbcl-slime-with-core-init (&optional port-filename coding-system)
   (format "%S\n\n"
           `(progn
              (funcall (read-from-string "swank:start-server")
                       ,port-filename))))
 
-(defun mm/slime-connected-hook ()
+(defun my-slime-connected-hook ()
   "Reconfigure logging on connection, need to run after `1slime-repl-connected-hook-function'"
-  (slime-eval `(swank::mm/slime-repl-connected)))
+  (slime-eval `(swank::my-slime-repl-connected)))
 
-(add-hook 'slime-connected-hook 'mm/slime-connected-hook t)
+(add-hook 'slime-connected-hook 'my-slime-connected-hook t)
 
-(defvar mm/start-with-core-args nil)
-(put 'mm/start-with-core-args 'permanent-local t)
+(defvar my-start-with-core-args nil)
+(put 'my-start-with-core-args 'permanent-local t)
 
-(defun mm/inferior-lisp-start-hook ()
-  "Setup buffer-local values for `mm/start-with-core-args'"
-  (when (and mm/start-with-core-args
-             (not (local-variable-p 'mm/start-with-core-args)))
-    (setq-local mm/start-with-core-args mm/start-with-core-args)))
+(defun my-inferior-lisp-start-hook ()
+  "Setup buffer-local values for `my-start-with-core-args'"
+  (when (and my-start-with-core-args
+             (not (local-variable-p 'my-start-with-core-args)))
+    (setq-local my-start-with-core-args my-start-with-core-args)))
 
-(add-hook 'slime-inferior-process-start-hook 'mm/inferior-lisp-start-hook)
+(add-hook 'slime-inferior-process-start-hook 'my-inferior-lisp-start-hook)
 
 (defun run-sbcl-with-image (&optional arg inferior)
   (interactive "P")
@@ -244,23 +244,23 @@
   (let ((executable (executable-find inferior))
         (slime-net-coding-system 'utf-8-unix))
     (if (not executable) (error "Executable %S not found" inferior)
-      (let* ((core (mm/sbcl-core-for-file executable))
-             (mm/start-with-core-args (list "--core" core "--noinform"))
-             (init 'mm/run-sbcl-slime-with-core-init))
+      (let* ((core (my-sbcl-core-for-file executable))
+             (my-start-with-core-args (list "--core" core "--noinform"))
+             (init 'my-run-sbcl-slime-with-core-init))
         (if (and (file-exists-p core) (not (equal arg '(4))))
-            (slime-start :program executable :program-args mm/start-with-core-args
-                         :init 'mm/run-sbcl-slime-with-core-init)
+            (slime-start :program executable :program-args my-start-with-core-args
+                         :init 'my-run-sbcl-slime-with-core-init)
           (slime-start :program executable))))))
 
-(defun mm/save-sbcl ()
+(defun my-save-sbcl ()
   "Save the SBCL dump file, based on the name of the current inferior lisp program"
   (interactive)
   (assert (slime-inferior-process) () "No inferior lisp process")
   (let* ((args (slime-inferior-lisp-args (slime-inferior-process)))
          (program (plist-get args :program))
-         (core (mm/sbcl-core-for-file (executable-find program))))
+         (core (my-sbcl-core-for-file (executable-find program))))
     (slime-eval-with-transcript
-     `(swank:mm/save-snapshot ,core))))
+     `(swank:my-save-snapshot ,core))))
 
 
 (defun run-sbcl (&optional args)
@@ -398,8 +398,8 @@
                                 (slime-list-threads)
                                 (switch-to-buffer-other-window (get-buffer "*slime-threads*"))))
 
-(defvar mm/slime-restart-directory nil)
-(defvar mm/start-lisp-force-dir nil)
+(defvar my-slime-restart-directory nil)
+(defvar my-start-lisp-force-dir nil)
 
 (defun my-plist-delete (plist property)
   "Delete PROPERTY from PLIST.
@@ -412,7 +412,7 @@ This is in contrast to merely setting it to 0."
     p))
 
 (defadvice slime-restart-inferior-lisp (around preserve-current-dir activate)
-  (let ((mm/slime-restart-directory
+  (let ((my-slime-restart-directory
          (with-current-buffer (slime-output-buffer)
            default-directory)))
     (assert (slime-inferior-process) () "No inferior lisp process")
@@ -420,10 +420,10 @@ This is in contrast to merely setting it to 0."
       (let* ((args slime-inferior-lisp-args)
              (program (plist-get args :program))
              (program-args (plist-get args :program-args))
-             (mm/start-with-core-args mm/start-with-core-args))
-        (if (or (not mm/start-with-core-args)
+             (my-start-with-core-args my-start-with-core-args))
+        (if (or (not my-start-with-core-args)
                 (equal current-prefix-arg '(4))
-                (not (file-exists-p (mm/sbcl-core-for-file program))))
+                (not (file-exists-p (my-sbcl-core-for-file program))))
             (progn 
               ;; normal startup
               (setq args (plist-put args :init 'slime-init-command))
@@ -431,23 +431,23 @@ This is in contrast to merely setting it to 0."
               (setq slime-inferior-lisp-args args)
               (setq ad-return-value ad-do-it))
           ;; with the core file
-          (setq args (plist-put args :init 'mm/run-sbcl-slime-with-core-init))
-          (setq args (plist-put args :program-args mm/start-with-core-args))
+          (setq args (plist-put args :init 'my-run-sbcl-slime-with-core-init))
+          (setq args (plist-put args :program-args my-start-with-core-args))
           (setq slime-inferior-lisp-args args)
           (setq ad-return-value ad-do-it))))))
 
 (defadvice slime-quit-lisp-internal (around preserve-current-dir activate)
-  (if (or (not mm/slime-restart-directory)
+  (if (or (not my-slime-restart-directory)
           (not (eq sentinel 'slime-restart-sentinel)))
       (setq ad-return-value ad-do-it)
     (let ((sentinel `(lambda (process _message)
-                       (let ((mm/start-lisp-force-dir
-                              ,mm/slime-restart-directory))
+                       (let ((my-start-lisp-force-dir
+                              ,my-slime-restart-directory))
                          (funcall (function ,sentinel) process _message)))))
       (setq ad-return-value ad-do-it))))
 
 (defadvice slime-start-lisp (around preserve-current-dir activate)
-  (or directory (setq directory mm/start-lisp-force-dir))
+  (or directory (setq directory my-start-lisp-force-dir))
   (setq ad-return-value ad-do-it))
 
 (defadvice slime-flash-region (around change-default-timeout activate)
@@ -536,7 +536,7 @@ This is in contrast to merely setting it to 0."
         ad-do-it)
     ad-do-it))
 
-(defun mm/setup-slime-vi-stuff ()
+(defun my-setup-slime-vi-stuff ()
   ;; (set (make-local-variable 'viper-ex-style-motion) nil)
   ;; (set (make-local-variable 'viper-ESC-moves-cursor-back) nil)
   ;; (set (make-local-variable 'require-final-newline) nil)
@@ -553,7 +553,7 @@ REPL")
 
 (setq repl-window-height 20)
 
-(defun mm/remember-repl-window-height ()
+(defun my-remember-repl-window-height ()
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (eq major-mode 'slime-repl-mode)
@@ -563,9 +563,9 @@ REPL")
             (set (make-local-variable 'repl-window-height)
                  (window-height win))))))))
 
-(remove-hook 'window-configuration-change-hook 'mm/remember-repl-window-height)
+(remove-hook 'window-configuration-change-hook 'my-remember-repl-window-height)
 
-(defun mm/repl-display-buffer-function (buffer &optional not-this-window)
+(defun my-repl-display-buffer-function (buffer &optional not-this-window)
   "Display repl in the window on the bottom of the current frame"
   (let* ((w1 (frame-first-window))
          (w2 (unless (eq w1 (next-window w1))
@@ -598,12 +598,12 @@ REPL")
       (select-window win))))
 
 
-(add-hook 'slime-repl-mode-hook 'mm/setup-slime-vi-stuff)
+(add-hook 'slime-repl-mode-hook 'my-setup-slime-vi-stuff)
 (add-hook 'slime-repl-mode-hook
           (lambda ()
-            (setq local-display-buffer-function 'mm/repl-display-buffer-function)))
+            (setq local-display-buffer-function 'my-repl-display-buffer-function)))
 
-(defun mm/next-xref-error (&optional how-many reset)
+(defun my-next-xref-error (&optional how-many reset)
   (interactive)
   (when reset
     (goto-char (point-min)))
@@ -631,28 +631,28 @@ REPL")
             ((null location)
              (message (if backward "No previous xref" "No next xref.")))
             (t                          ; error location
-             (mm/next-xref-error how-many))))))
+             (my-next-xref-error how-many))))))
 
-(defun mm/make-slime-xref-next-error-capable ()
-  (setq next-error-function 'mm/next-xref-error))
+(defun my-make-slime-xref-next-error-capable ()
+  (setq next-error-function 'my-next-xref-error))
 
-(add-hook 'slime-xref-mode-hook 'mm/make-slime-xref-next-error-capable)
+(add-hook 'slime-xref-mode-hook 'my-make-slime-xref-next-error-capable)
 
-(defvar mm/last-compile-xref-buffer nil)
+(defvar my-last-compile-xref-buffer nil)
 
-(defun mm/slime-show-xrefs-for-notes (notes)
+(defun my-slime-show-xrefs-for-notes (notes)
   (let ((xrefs (slime-xrefs-for-notes notes)))
     (cond ((slime-length> xrefs 0)
            (slime-show-xrefs
             xrefs 'definition "Compiler notes" (slime-current-package))
-           (setq mm/last-compile-xref-buffer slime-xref-last-buffer)
+           (setq my-last-compile-xref-buffer slime-xref-last-buffer)
            (setq next-error-last-buffer slime-xref-last-buffer))
-          (t (when mm/last-compile-xref-buffer
-               (kill-buffer mm/last-compile-xref-buffer)
-               (setq mm/last-compile-xref-buffer nil))))))
+          (t (when my-last-compile-xref-buffer
+               (kill-buffer my-last-compile-xref-buffer)
+               (setq my-last-compile-xref-buffer nil))))))
 
 (remove-hook 'slime-compilation-finished-hook 'slime-maybe-show-compilation-log)
-(add-hook 'slime-compilation-finished-hook 'mm/slime-show-xrefs-for-notes)
+(add-hook 'slime-compilation-finished-hook 'my-slime-show-xrefs-for-notes)
 
 ;;
 ;; Remind C-c C-k in Slime to a command that with a prefix argument
@@ -664,7 +664,7 @@ REPL")
 ;;
 ;; Without the prefix key, original C-c C-k is called.
 ;;
-(defun mm/slime-compilation-finished-synchroniously (result)
+(defun my-slime-compilation-finished-synchroniously (result)
   "Cut-n-paste of `slime-compilation-finished' but use
 synchronous call to load the file.
 
@@ -682,7 +682,7 @@ Returns SUCCESS flag"
       (slime-eval `(swank:load-file ,faslfile)))
     successp))
 
-(defun mm/slime-compile-file-synchroniously (&optional load policy)
+(defun my-slime-compile-file-synchroniously (&optional load policy)
   "Cut-n-paste of `slime-compile-file' but do the call
 synchroniously. Returns success flag"
   (interactive)
@@ -697,12 +697,12 @@ synchroniously. Returns success flag"
                                          :policy ,policy)))
         (slime-load-failed-fasl 'never))
     (message "Compiling %s..." file)
-    (mm/slime-compilation-finished-synchroniously
+    (my-slime-compilation-finished-synchroniously
      (slime-eval
       `(swank:compile-file-for-emacs ,file ,(if load t nil) 
                                      . ,(slime-hack-quotes options))))))
 
-(defun mm/compile-and-load-file (&optional arg)
+(defun my-compile-and-load-file (&optional arg)
   "Without the prefix argument calls `slime-compile-and-load-file'.
 
 With prefix argument unconditionally saves the current file, then
@@ -713,11 +713,11 @@ successful. Suitable for using in keyboard macros"
       (slime-compile-and-load-file)
     (let ((slime-load-failed-fasl 'never))
       (or 
-       (mm/slime-compile-file-synchroniously t)
+       (my-slime-compile-file-synchroniously t)
        (error "Compilation failed")))))
 
 
-(define-key slime-mode-map "\C-c\C-k" 'mm/compile-and-load-file)
+(define-key slime-mode-map "\C-c\C-k" 'my-compile-and-load-file)
 
 (defadvice end-of-buffer (after slime-go-insert-mode activate)
   (when (and (eq major-mode 'slime-repl-mode) evil-mode)
@@ -747,14 +747,14 @@ successful. Suitable for using in keyboard macros"
 (setq slime-repl-auto-right-margin nil)
 
 
-(defun mm/slime-set-connection-right-margin (conn margin)
+(defun my-slime-set-connection-right-margin (conn margin)
   (when (eq (process-status conn) 'open)
     (ignore-errors
       (save-excursion 
         (let ((slime-dispatching-connection conn)) 
           (slime-eval `(cl:setf cl:*print-right-margin* ,margin)))))))
 
-(defun mm/slime-set-right-margin ()
+(defun my-slime-set-right-margin ()
   (dolist (conn slime-net-processes) 
     (let* ((buffer (slime-connection-output-buffer conn))
            (new-width (when (buffer-live-p buffer)
@@ -763,14 +763,14 @@ successful. Suitable for using in keyboard macros"
            (last-margin (process-get conn 'last-margin)))
       (unless (eql new-width last-margin)
         (process-put conn 'last-margin new-width)
-        ;; (mm/slime-set-connection-right-margin conn new-width)
+        ;; (my-slime-set-connection-right-margin conn new-width)
         ))))
 
-(defun mm/remove-set-right-margin-hook ()
-  (remove-hook 'window-configuration-change-hook 'mm/slime-set-right-margin))
+(defun my-remove-set-right-margin-hook ()
+  (remove-hook 'window-configuration-change-hook 'my-slime-set-right-margin))
 
-(add-hook 'window-configuration-change-hook 'mm/slime-set-right-margin)
-(add-hook 'kill-emacs-hook 'mm/remove-set-right-margin-hook)
+(add-hook 'window-configuration-change-hook 'my-slime-set-right-margin)
+(add-hook 'kill-emacs-hook 'my-remove-set-right-margin-hook)
 
 (require 'info)
 (require 'info-look)

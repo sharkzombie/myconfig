@@ -1,6 +1,13 @@
 (require 'cc-mode)
 (require 'tempo)
 
+(defun my-c-in-literal ()
+  (or (c-in-literal)
+      (and (eql ?' (char-before))
+           (eql ?' (char-after))
+           (eq (get-text-property (point) 'face) 'font-lock-warning-face)
+           'string)))
+
 (when (require-if-available 'c-paredit)
   (c-paredit-mode 1))
 
@@ -65,10 +72,10 @@
       (setq ad-return-value ad-do-it)
     (cc/tempo-insert-string-function string)))
 
-;; (defadvice comment-indent-new-line (around mm/fix-ccmode activate)
+;; (defadvice comment-indent-new-line (around my-fix-ccmode activate)
 ;;   (if (not c-buffer-is-cc-mode)
 ;;       (setq ad-return-value ad-do-it)
-;;     (let ((literal (c-in-literal)))
+;;     (let ((literal (my-c-in-literal)))
 ;;       (if (not (eq literal 'c))
 ;;           (newline-and-indent)
 ;;         (indent-according-to-mode)
@@ -78,7 +85,7 @@
 
 (defun my-c-semicolon (arg)
   (interactive "*P")
-  (let ((literal (c-in-literal)))
+  (let ((literal (my-c-in-literal)))
     (when (and (c-paredit-in-string-p literal)
                (looking-at "\""))
       (forward-char 1)

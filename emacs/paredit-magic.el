@@ -996,7 +996,7 @@ structure move functions"
 (defun paredit-magic-mode (&optional arg)
  "Enable or toggle paredit magic mode editing"
   (interactive)
-  (setq paredit-magic-mode (mm/should-mode-be-enabled-p arg paredit-magic-mode))
+  (setq paredit-magic-mode (my-should-mode-be-enabled-p arg paredit-magic-mode))
   (message "Paredit magic mode %s" (if paredit-magic-mode "enabled" "disabled"))
   (cond (paredit-magic-mode
          (add-hook 'post-command-hook 'paredit-magic-post-command-hook)
