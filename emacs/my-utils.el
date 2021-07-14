@@ -1,4 +1,15 @@
 
+(defvar my-inhibit-messages t 
+  "Bound to `inhibit-message' by `log-debug' and `log-expr'")
+
+(defun toggle-my-inhibit-mesasges ()
+  (interactive)
+  (setq my-inhibit-messages (not my-inhibit-messages))
+  (message "Log messages will %s"
+           (if my-inhibit-messages "be only added to *Messages* buffer"
+             "be shown shown in the echo area")))
+
+
 (defun require-if-available (&rest args)
   "require symbols, load-library strings, fail silently if 
    some aren't available"
@@ -35,6 +46,12 @@
 (defun my-in-string-p ()
   (ignore-errors (in-string-p)))
 
+(defun my-log-message (format &rest args)
+  "Call `message' binding `inhibit-message' to `my-inhibit-messages'"
+  (let ((inhibit-message my-inhibit-messages))
+    (apply #'message format args))
+  (values))
+
 (defmacro log-sexp (&rest exprs)
   "Log each expression literally and their evaluated form.
 For example (log-expr a b) will log 'a=123 b=321'
@@ -48,7 +65,7 @@ For example (log-expr a b) will log 'a=123 b=321'
 	      (unless (stringp e)
 		(princ "=")
 		(princ "%S"))))))
-    `(message ,format ,@exprs)))
+    `(my-log-message,format ,@exprs)))
 
 (defalias 'log-expr 'log-sexp)
 
