@@ -302,9 +302,25 @@ mode) then remove that newline."
 
 (defun align-defun ()
   (interactive)
-  (save-excursion 
-    (mark-defun) 
-    (call-interactively 'align)))
+  (save-mark-and-excursion
+    (let* ((s (c-guess-basic-syntax))
+           (ss (mapcar #'car s))
+           (sv (mapcar #'cadr s)))
+      (log-expr s ss sv)
+      (cond ((equal ss '(inclass topmost-intro))
+             (goto-char (car sv))
+             (set-mark (point))
+             (c-end-of-defun)
+             (call-interactively 'align))
+            ((member ss '((defun-block-intro)
+                          (statement)
+                          (defun-block-intro comment-intro)
+                          (defun-close)))
+             (c-beginning-of-defun)
+             (set-mark (point))
+             (c-end-of-defun)
+             (call-interactively 'align))
+            (t (error "Don't know how to align %s" s))))))
 
 (evil-define-key 'normal c++-mode-map "za" 'align-defun)
 
