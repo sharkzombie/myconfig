@@ -57,6 +57,7 @@
 For example (log-expr a b) will log 'a=123 b=321'
 " 
   (let* ((first t)
+         (args nil)
          (format
           (with-output-to-string
             (dolist (e exprs)
@@ -64,8 +65,9 @@ For example (log-expr a b) will log 'a=123 b=321'
 	      (princ e)
 	      (unless (stringp e)
 		(princ "=")
-		(princ "%S"))))))
-    `(my-log-message,format ,@exprs)))
+		(princ "%S")
+                (push e args))))))
+    `(my-log-message,format ,@ (reverse args))))
 
 (defalias 'log-expr 'log-sexp)
 
