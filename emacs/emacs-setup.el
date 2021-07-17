@@ -113,7 +113,8 @@
 (add-to-list 'auto-mode-alist (cons "zalias$" 'shell-script-mode))
 (add-to-list 'auto-mode-alist (cons "/X11.+app-override/" 'conf-xdefaults-mode))
 (add-to-list 'auto-mode-alist (cons "\\.\\(ofx\\|qfx\\)$" 'nxml-mode))
-(add-to-list 'auto-mode-alist (cons "\\.\\(h\\|hh\\)$" 'c++-mode))
+(add-to-list 'auto-mode-alist (cons "\\.\\(h\\|hh\\|hpp\\)\\'" 'c++-mode))
+(add-to-list 'auto-mode-alist '("[Mm]akefile2\\'" . makefile-gmake-mode))
 
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
