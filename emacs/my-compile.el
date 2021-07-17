@@ -59,5 +59,18 @@
 (evil-define-key '(motion normal insert visual) 'global "\M-gc" 'my-compile)
 (evil-define-key '(motion normal insert visual) 'global [(f7)] 'my-compile)
 
+;; Prevent compilation from regognizing error messages wrongly
+;;
+;; Remove guile-line which matches: "2: 1  FAILED TEST" in CTestoutput
+;;
+;; Match the make: *** [Makefile:123 target] Error 2 message as info
+;; otherwise "*** [Makefile" is recognized by stupid GNU matcher as file name
+(progn 
+  (remove-from-list 'compilation-error-regexp-alist 'guile-line)
+  (add-to-list 'compilation-error-regexp-alist 'my) 
+  (setf (alist-get'my compilation-error-regexp-alist-alist)
+        (list (rx
+               (regexp "^make: \\*\\*\\* \\[\\(Makefile\\):\\([0-9]+\\):"))
+              1 2 nil 0)))
 
 (provide 'my-compile)
