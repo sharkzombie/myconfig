@@ -179,21 +179,23 @@
   "Point restored by egg-restore-section-visibility")
 
 
-(defadvice egg-restore-section-visibility (around remember-point-after-restoring-section-visibility)
+(defadvice egg-restore-section-visibility (around remember-point-after-restoring-section-visibility activate)
   (setq ad-return-value ad-do-it)
   (setq my-egg-restored-pt (point)))
 
-(defadvice egg-diff-section-cmd-unstage (before ix-point)
+(defadvice egg-diff-section-cmd-unstage (before fix-point activate)
   (setq my-egg-restored-pt nil))
 
-(defadvice egg-diff-section-cmd-stage (before fix-point)
+(defadvice egg-diff-section-cmd-stage (before fix-point activate)
   (setq my-egg-restored-pt nil))
 
-(defadvice egg-diff-section-cmd-unstage (after fix-point)
+(defadvice egg-diff-section-cmd-unstage (after fix-point activate)
+  ;; (log-expr "here2 my-egg-restored-pt")
   (when my-egg-restored-pt
     (goto-char my-egg-restored-pt)))
 
-(defadvice egg-diff-section-cmd-stage (after fix-point)
+(defadvice egg-diff-section-cmd-stage (after fix-point activate)
+  ;; (log-expr "here1" my-egg-restored-pt)
   (when my-egg-restored-pt
     (goto-char my-egg-restored-pt)))
 
