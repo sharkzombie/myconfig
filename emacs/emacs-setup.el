@@ -30,6 +30,9 @@
 (setq-default indent-tabs-mode nil)    ;; Tabs as spaces
 (setq-default tab-always-indent t)
 
+(save-place-mode 1)
+(when (require-if-available 'show-point-mode) 
+  (global-show-point-mode 1))
 
 ;; do I need below?  THey were in old my-emacs-setup.el
 
