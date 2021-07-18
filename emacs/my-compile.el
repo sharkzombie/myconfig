@@ -59,6 +59,8 @@
 (evil-define-key '(motion normal insert visual) 'global "\M-gc" 'my-compile)
 (evil-define-key '(motion normal insert visual) 'global [(f7)] 'my-compile)
 
+(remove-from-list 'evil-insert-state-modes 'comint-mode)
+
 ;; Prevent compilation from regognizing error messages wrongly
 ;;
 ;; Remove guile-line which matches: "2: 1  FAILED TEST" in CTestoutput
@@ -72,5 +74,6 @@
         (list (rx
                (regexp "^make: \\*\\*\\* \\[\\(Makefile\\):\\([0-9]+\\):"))
               1 2 nil 0)))
+
 
 (provide 'my-compile)
