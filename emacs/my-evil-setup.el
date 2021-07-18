@@ -94,9 +94,9 @@ mapping will always be the ESC prefix map."
   (quit-restore-window nil 'kill))
 
 (evil-define-key '(normal motion insert) 'global (kbd "TAB") 'my-exec-key-in-emacs)
-
-(defvar evil-Zopen-map (make-sparse-keymap)
-  "Keymap for ZO command in Evil mode")
+;; get rid of the Ctrl-R for redo and assign C-
+(evil-define-key '(normal motion) 'global (kbd "C-r") nil)
+(evil-define-key '(normal motion) 'global (kbd "C-M-z") 'evil-redo)
 
 ;; z bindings
 (evil-define-key '(normal motion) 'global "zo" 'find-file)
@@ -113,8 +113,7 @@ mapping will always be the ESC prefix map."
 (evil-define-key '(normal motion) 'global "sth" 'hl-line-mode)
 (evil-define-key '(normal motion) 'global "stc" 'toggle-case-fold-search)
 (evil-define-key '(normal motion) 'global "str" 'refill-mode)
-(when (require-if-available 'show-point-mode)
-  (evil-define-key '(normal motion) 'global "stp" 'show-point-mode))
+(evil-define-key '(normal motion) 'global "stp" 'show-point-mode)
 
 ;; ; map
 (evil-define-key '(motion normal visual) 'global ";" nil)
