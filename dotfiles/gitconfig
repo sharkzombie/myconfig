@@ -13,3 +13,5 @@
         xfuncname="^(\\(def.*)$"
 [push]
 	default = matching
+[pull]
+	rebase = true
