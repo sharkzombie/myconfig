@@ -28,6 +28,7 @@
 	    (innamespace . 0))
            (c-hanging-braces-alist (brace-list-open after)
                                    (defun-open after)
+                                   (inline-open after)
                                    (brace-entry-open after)
                                    (statement-cont after)
                                    (substatement-open after)
@@ -38,7 +39,8 @@
                                    (module-open after)
                                    (composition-open after)
                                    (inexpr-class-open after)
-                                   (inexpr-class-close before))
+                                   (inexpr-class-close before)
+                                   (class-open after))
            (c-cleanup-list brace-else-brace
                            brace-elseif-brace
                            brace-catch-brace
@@ -136,9 +138,10 @@
 
 (defun my-c-paredit-electric-brace (arg)
   (interactive "*P")
-  (when (memq major-mode '(c-mode c++-mode))
-    (while (looking-at "[])]")
-      (forward-char 1)))
+  ;; (when (looking-back ("[\llll\[&?\]")))
+  ;; (when (memq major-mode '(c-mode c++-mode))
+  ;;   (while (looking-at "[])]")
+  ;;     (forward-char 1)))
   (c-paredit-electric-brace arg))
 
 (defun c-tempo-asterisk ()
