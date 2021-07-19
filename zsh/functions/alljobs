@@ -1,0 +1,1 @@
+jobs -p | awk '{print $1}' | tr '[]' '% ' 

@@ -32,6 +32,8 @@ else
   alias vi=vim
 fi
 
+alias killaj='kill $(alljobs)'
+
 if [[ -n $SSH_AUTH_SOCK && -S $SSH_AUTH_SOCK ]] ; then
     echo export SSH_AUTH_SOCK=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
 elif [[ -f ~/.ssh_auth_sock ]] ; then
@@ -39,3 +41,5 @@ elif [[ -f ~/.ssh_auth_sock ]] ; then
        . ~/.ssh_auth_sock
     fi
 fi
+
+
