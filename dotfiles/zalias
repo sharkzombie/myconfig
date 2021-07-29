@@ -34,12 +34,69 @@ fi
 
 alias killaj='kill $(alljobs)'
 
-if [[ -n $SSH_AUTH_SOCK && -S $SSH_AUTH_SOCK ]] ; then
-    echo export SSH_AUTH_SOCK=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
-elif [[ -f ~/.ssh_auth_sock ]] ; then
-    if ( . ~/.ssh_auth_sock ; [[ -S $SSH_AUTH_SOCK ]] ) ; then
-       . ~/.ssh_auth_sock
-    fi
-fi
+function _is_good_ssh_auth_sock() {
+    local SSH_AUTH_SOCK
+    export SSH_AUTH_SOCK=$1
+    ssh-add -l > /dev/null 2>/dev/null 
+    (( $? == 0 || $? == 1 ))
+}
 
+(){
+    ## goddamn complicated business, coz checking if SSH_AUTH_SOCKET is good
+    ## takes 2 second or so (timeout on connecting to UNIX domain socket
+    ##
+    ## So we check if ~/.ssh_auth_File is good, if it is, we just set
+    ## SSH_AUTH_SOCK from it
+    ##
+    ## If ~/.ssh_auth_sock exists, but sets ssh_auth_sock to empty string
+    ## or not path to a socket, we just exit, this prevents us repeatedly
+    ## checking bad SSH_AUTH_SOCK value in the next step if we started screen
+    ## from something that had SSH_AUTH_SOCK variable that had now became
+    ## invalid.
+    ##
+    ## Next we check if SSH_AUTH_SOCK is set. If it is, and ~/.ssh_auth_sock
+    ## was missing or pointing to bad socket, we check if SSH_AUTH_SOCK
+    ## is good.  If its good, we save it in ~/.ssh_auth_sock, 
+    ##
+    ## As a last step we reset ~/.ssh_auth_sock to empty string. This prevents
+    ## farther checking of SSH_AUTH_SOCK by subsequent logon shells
+    local ssh_auth_sock_file_status
+
+    if [[ -f ~/.ssh_auth_sock ]] ; then
+        ssh_auth_sock_file_status=exist
+        unset ssh_auth_sock
+        . ~/.ssh_auth_sock
+        if [[ -S $ssh_auth_sock ]] ; then
+            if _is_good_ssh_auth_sock $ssh_auth_sock ; then
+                ssh_auth_sock_file_status=good
+            else
+                ssh_auth_sock_file_status=badsocket
+            fi
+        else
+            ssh_auth_sock_file_status=undef
+        fi
+    else
+        ssh_auth_sock_file_status=missing
+    fi
+
+    if [[ $ssh_auth_sock_file_status == good ]] ; then
+        # iprint file status was good so setting it from it
+        export SSH_AUTH_SOCK=$ssh_auth_sock
+    elif [[ $ssh_auth_sock_file_status != good && -n $SSH_AUTH_SOCK ]] ; then
+        if [[ $ssh_auth_sock_file_status != undef ]] && _is_good_ssh_auth_sock $SSH_AUTH_SOCK ; then
+            if [[ $ssh_auth_sock_file_status != good ]] ; then
+                # iprint status was $ssh_auth_sock_file_status and SSH_AUTH_SOCK was good so saved it in ~/.ssh_auth_file
+                echo export ssh_auth_sock=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
+            else
+                #iprint Both SSH_AUTH_SOCK and ~/.ssh_auth_sock are good
+            fi
+        else
+            #iprint ~/.ssh_auth_sock is $ssh_auth_sock_file_status and SSH_AUTHSOCK was NOT good
+            [[ $ssh_auth_sock_file_status == undef ]] || echo ssh_auth_sock= > ~/.ssh_auth_sock
+        fi
+    else 
+        #iprint ~/.ssh_auth_sock is $ssh_auth_sock_file_status and SSH_AUTH_SOCK is unset
+        [[ $ssh_auth_sock_file_status == undef ]] || echo ssh_auth_sock= > ~/.ssh_auth_sock
+    fi
+}
 
