@@ -91,12 +91,16 @@ function _is_good_ssh_auth_sock() {
                 #iprint Both SSH_AUTH_SOCK and ~/.ssh_auth_sock are good
             fi
         else
-            #iprint ~/.ssh_auth_sock is $ssh_auth_sock_file_status and SSH_AUTHSOCK was NOT good
-            [[ $ssh_auth_sock_file_status == undef ]] || echo ssh_auth_sock= > ~/.ssh_auth_sock
+	    if [[ $ssh_auth_sock_file_status != undef ]] ; then
+		iprint No SSH agent available, resetting ~/.ssh_auth_sock
+		echo ssh_auth_sock= > ~/.ssh_auth_sock
+	    fi
         fi
     else 
-        #iprint ~/.ssh_auth_sock is $ssh_auth_sock_file_status and SSH_AUTH_SOCK is unset
-        [[ $ssh_auth_sock_file_status == undef ]] || echo ssh_auth_sock= > ~/.ssh_auth_sock
+        if [[ $ssh_auth_sock_file_status != undef ]] ; then
+	    iprint No SSH agent available, resetting ~/.ssh_auth_sock
+	    echo ssh_auth_sock= > ~/.ssh_auth_sock
+	fi
     fi
 }
 

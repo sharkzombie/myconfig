@@ -1,6 +1,14 @@
 #!/bin/zsh
-pkill ssh-agent
+if [[ $OS == Windows_NT ]]
+then
+    pskill64 -nobanner ssh-agent > /dev/null
+    SSH_AUTH_SOCK=$(cygpath -wm $SSH_AUTH_SOCK)
+else
+    killall ssh-agent
+    pkill ssh-agent
+fi
+
 . =(setsid ssh-agent)
-SSH_AUTH_SOCK=$(cygpath -wm $SSH_AUTH_SOCK)
+
 echo "export ssh_auth_sock=$SSH_AUTH_SOCK" > ~/.ssh_auth_sock
 
