@@ -66,8 +66,8 @@ function _is_good_ssh_auth_sock() {
         ssh_auth_sock_file_status=exist
         unset ssh_auth_sock
         . ~/.ssh_auth_sock
-        if [[ -S $ssh_auth_sock ]] ; then
-            if _is_good_ssh_auth_sock $ssh_auth_sock ; then
+        if [[ -S $last_ssh_auth_sock ]] ; then
+            if _is_good_ssh_auth_sock $last_ssh_auth_sock ; then
                 ssh_auth_sock_file_status=good
             else
                 ssh_auth_sock_file_status=badsocket
@@ -81,25 +81,25 @@ function _is_good_ssh_auth_sock() {
 
     if [[ $ssh_auth_sock_file_status == good ]] ; then
         # iprint file status was good so setting it from it
-        export SSH_AUTH_SOCK=$ssh_auth_sock
+        export SSH_AUTH_SOCK=$last_ssh_auth_sock
     elif [[ $ssh_auth_sock_file_status != good && -n $SSH_AUTH_SOCK ]] ; then
         if [[ $ssh_auth_sock_file_status != undef ]] && _is_good_ssh_auth_sock $SSH_AUTH_SOCK ; then
             if [[ $ssh_auth_sock_file_status != good ]] ; then
                 # iprint status was $ssh_auth_sock_file_status and SSH_AUTH_SOCK was good so saved it in ~/.ssh_auth_file
-                echo export ssh_auth_sock=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
+                echo last_ssh_auth_sock=$SSH_AUTH_SOCK > ~/.ssh_auth_sock
             else
                 #iprint Both SSH_AUTH_SOCK and ~/.ssh_auth_sock are good
             fi
         else
 	    if [[ $ssh_auth_sock_file_status != undef ]] ; then
 		iprint No SSH agent available, resetting ~/.ssh_auth_sock
-		echo ssh_auth_sock= > ~/.ssh_auth_sock
+		echo last_ssh_auth_sock= > ~/.ssh_auth_sock
 	    fi
         fi
     else 
         if [[ $ssh_auth_sock_file_status != undef ]] ; then
 	    iprint No SSH agent available, resetting ~/.ssh_auth_sock
-	    echo ssh_auth_sock= > ~/.ssh_auth_sock
+	    echo last_ssh_auth_sock= > ~/.ssh_auth_sock
 	fi
     fi
 }

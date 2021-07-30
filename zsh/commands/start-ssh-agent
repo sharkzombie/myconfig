@@ -1,8 +1,6 @@
 #!/bin/zsh
-if [[ $OS == Windows_NT ]]
-then
+if [[ $OS == Windows_NT ]] ; then
     pskill64 -nobanner ssh-agent > /dev/null
-    SSH_AUTH_SOCK=$(cygpath -wm $SSH_AUTH_SOCK)
 else
     killall ssh-agent
     pkill ssh-agent
@@ -10,5 +8,9 @@ fi
 
 . =(setsid ssh-agent)
 
-echo "export ssh_auth_sock=$SSH_AUTH_SOCK" > ~/.ssh_auth_sock
+if [[ $OS == Windows_NT ]] ; then
+    SSH_AUTH_SOCK=$(cygpath -wm $SSH_AUTH_SOCK)
+fi
+
+echo "last_ssh_auth_sock=$SSH_AUTH_SOCK" > ~/.ssh_auth_sock
 
