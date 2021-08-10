@@ -107,7 +107,9 @@
 (require-if-available 'my-shell-mode-setup)
 (require-if-available 'my-cmake-setup)
 (require-if-available 'my-vc-setup)
-(require-if-available 'my-edebug-setup) 
+(require-if-available 'my-edebug-setup)
+
+(require-if-available 'zsh-wildcard)
 
 
 
