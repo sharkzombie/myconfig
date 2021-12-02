@@ -128,7 +128,7 @@ emulate -L zsh
 tail_and_signal $outfile __donedone__ $$&
  # Run cmd.exe that runs scons redirected to $zz, saves error code, appends __donedone__ to $zz and
  # finally exits with scons error code
- set -x
+ #set -x
  winpty -Xallow-non-tty cmd.exe /C $wscons -U --vars=$vars --no-recurse -j 4 $* '>' $outfile '&' set exitcode='%errorlevel%' '&' echo __donedone__ '>>' $outfile '&' exit '%exitcode%'
  exitcode=$?
  set +x
