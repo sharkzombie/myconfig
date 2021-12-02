@@ -21,7 +21,7 @@
  '(next-error-highlight t)
  '(package-selected-packages
    (quote
-    (cmake-mode cedit undo-tree csharp-mode yaml-mode evil-paredit egg cff evil)))
+    (cmake-mode cedit undo-tree csharp-mode yaml-mode evil-paredit egg evil)))
  '(safe-local-variable-values
    (quote
     ((whitespace-action warn-read-only auto-cleanup)

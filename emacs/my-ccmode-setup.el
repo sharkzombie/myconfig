@@ -325,6 +325,10 @@ mode) then remove that newline."
              (call-interactively 'align))
             (t (error "Don't know how to align %s" s))))))
 
-(evil-define-key 'normal c++-mode-map "za" 'align-defun)
+(evil-define-key '(normal motion) c++-mode-map "za" 'align-defun)
+(when (require-if-available 'cff) 
+  (evil-define-key '(normal motion) c++-mode-map "ss" 'cff-find-file-other-window)
+  (evil-define-key '(normal motion) c++-mode-map "sS" 'cff-find-other-file))
+
 
 (provide 'my-ccmode-setup)
