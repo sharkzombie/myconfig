@@ -121,6 +121,7 @@
 (add-to-list 'auto-mode-alist (cons "\\.\\(ofx\\|qfx\\)$" 'nxml-mode))
 (add-to-list 'auto-mode-alist (cons "\\.\\(h\\|hh\\|hpp\\)\\'" 'c++-mode))
 (add-to-list 'auto-mode-alist '("[Mm]akefile2\\'" . makefile-gmake-mode))
+(add-to-list 'auto-mode-alist '("[SC]ons[a-z]+\\'" . python-mode))
 
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
