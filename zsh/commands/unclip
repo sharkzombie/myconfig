@@ -1,0 +1,2 @@
+#!/bin/zsh
+powershell -command "Get-Clipboard"|dos2unix
