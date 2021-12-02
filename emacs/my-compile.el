@@ -15,6 +15,8 @@
 
 
 (defun my-after-compilation-mode ()
+  (when (equal (getenv "HOSTNAME") "mmikhanodsktp") 
+    (font-lock-mode 0))
   (hl-line-mode 1))
 
 (defun my-on-next-error-hook ()
