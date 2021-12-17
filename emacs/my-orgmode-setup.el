@@ -568,7 +568,7 @@ any children"
 (define-key org-agenda-mode-map "\C-m" 'my-org-agenda-switch-to)
 
 ;; (viper-reset-overrides 'org-agenda-mode 'vi-state)
-(evil-give-back-keys-in-mode '(org-agenda-mode) nil)
+;;(evil-give-back-keys-in-mode '(org-agenda-mode) nil)
 
 (defun mm/org-agenda-refile (&optional arg)
   "Like `org-agenda-refile' but does not refresh agenda"
@@ -853,8 +853,8 @@ any children"
 
 (defun mm/org-capture-mode-hook ()
   (when (equal (org-capture-get :key 'local) "c") 
-    (org-add-log-setup 'state "TODO" "NEW" 'findpos 'state) 
-    (save-excursion (org-add-log-note)) 
+    (org-add-log-setup 'state "TODO" "NEW" 'state)
+    (save-excursion (org-add-log-note))
     (org-cycle-hide-drawers 'children)))
 
 (add-hook 'org-capture-before-finalize-hook 'mm/org-capture-mode-hook)
@@ -1330,19 +1330,19 @@ the default task."
         (t (message "Idle auto clock-out disabled because server is %s"
                     (if (boundp 'server-name) server-name "unknown")))))
 
-(defadvice org-store-log-note (around maybe-clock-out activate)
-  (let ((mm/marker (copy-marker org-log-note-marker)))
-    (setq ad-return-value ad-do-it)
-    (when (and (org-clocking-p)
-               (equal
-                (with-current-buffer (marker-buffer mm/marker)
-                  (goto-char mm/marker)
-                  (org-back-to-heading t)
-                  (point-marker))
-                org-clock-hd-marker))
-      (with-current-buffer (marker-buffer mm/marker)
-        (org-with-point-at org-clock-hd-marker)
-        (org-clock-out)))))
+;; (defadvice org-store-log-note (around maybe-clock-out activate)
+;;   (let ((mm/marker (copy-marker org-log-note-marker)))
+;;     (setq ad-return-value ad-do-it)
+;;     (when (and (org-clocking-p)
+;;                (equal
+;;                 (with-current-buffer (marker-buffer mm/marker)
+;;                   (goto-char mm/marker)
+;;                   (org-back-to-heading t)
+;;                   (point-marker))
+;;                 org-clock-hd-marker))
+;;       (with-current-buffer (marker-buffer mm/marker)
+;;         (org-with-point-at org-clock-hd-marker)
+;;         (org-clock-out)))))
 
 (defun mm/clock-out-when-done-hook ()
   (when (and (org-clocking-p)
