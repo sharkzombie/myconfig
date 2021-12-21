@@ -1,0 +1,64 @@
+#!/bin/zsh
+
+JAVA_HOME="c:/Program Files/Java/jdk1.8.0_171"
+path=("$(cygpath c:/Python27)" "$(cygpath $JAVA_HOME/bin)" $path)
+path+="$(cygpath c:/Program\ Files/Git/cmd)" 
+#path+="/cygdrive/c/Program Files (x86)/Dr. Memory/bin64"
+#emacsdir=~/emacs
+
+dp=c:/bway/source/trademanage/trunk/14.0_amd64_None/trunk.gd/Products/TOC4/bin64/DeployInstaller.exe 
+
+
+set -o glob_star_short
+
+export mt=~/bway/mktlib/trunk
+export tm=~/bway/trademanage/trunk
+export tlt=~/bway/trademanage/trunk/trade_lib
+export cch=('**.cc' '**.cpp' '**.h' '**.hpp')
+export cch=('**.cc' '**.h')
+export hcc=('**.h' '**.hpp' '**.cc' '**.cpp')
+export hcc=('**.h' '**.cc')
+export hh=('**.h')
+export cc=('**.cc')
+
+autoload relative
+
+function upward_dir () {
+    local what=$1 pat=$2 dir=$PWD out
+    while [[ $dir != / ]] ; do
+        if [[ -d $dir/$what ]] ; then
+            out=$dir/$what
+            break
+        fi
+        dir=$dir:h
+    done
+    if [[ -n $out ]] ; then
+        out=$(relative $out)
+        print $out
+    else
+        print "Directory $what not found" 1>&2
+        return 1
+    fi
+}
+
+alias -g mtch='${$(upward_dir mktlib/trunk)}/${^~cch}'
+alias -g mthc='${$(upward_dir mktlib/trunk)}/${^~hcc}'
+alias -g mtc='${$(upward_dir mktlib/trunk)}/${^~cc}'
+alias -g mth='${$(upward_dir mktlib/trunk)}/${^~hh}'
+alias -g tch='$tt${$(upward_dir trade_lib)}/${^~cch}'
+alias -g thc='$tt${$(upward_dir trade_lib)}/${^~hcc}'
+alias -g th='$tt${$(upward_dir trade_lib)}/${^~hh}'
+alias -g tc='$tt${$(upward_dir trade_lib)}/${^~cc}'
+
+
+function goto {
+    case $1 ; in
+	adap2)
+	cd //devny405/DevAdap2/Logs
+	;;
+	adap)
+	cd //bwaydev05/Dev.Adap/Logs
+	;;
+	*) print "Unknown goto $1"
+    esac
+}
