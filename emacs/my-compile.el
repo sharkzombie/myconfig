@@ -4,9 +4,10 @@
 (when (require-if-available 'ansi-color)
   (defun my/colorize-compilation ()
     "Colorize from `compilation-filter-start' to `point'."
-    (let ((inhibit-read-only t))
-      (ansi-color-apply-on-region
-       compilation-filter-start (point))))
+    (when font-lock-mode 
+      (let ((inhibit-read-only t))
+        (ansi-color-apply-on-region
+         compilation-filter-start (point)))))
   
   (remove-hook 'compilation-filter-hook
 	    #'my/colorize-compilation)
@@ -14,10 +15,14 @@
 	    #'my/colorize-compilation))
 
 
-(defun my-after-compilation-mode ()
+(defun my-compilation-mode-hook ()
+  "Disable font-lock coz bway shit fuxers compilation mode font-lock to slow down emacs"
   (when (equal (getenv "HOSTNAME") "mmikhanodsktp") 
     (font-lock-mode 0))
   (hl-line-mode 1))
+
+
+(add-hook 'compilation-mode-hook 'my-compilation-mode-hook) 
 
 (defun my-on-next-error-hook ()
   "Somehow hl-line does not highlight the compilation mode line even with hl-line-sticky-flag, so fix it"
