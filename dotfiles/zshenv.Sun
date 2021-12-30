@@ -7,5 +7,5 @@ elif [[ $(uname -a) == Linux*WSL2* ]] ; then
     emacsdir=~/max-work/emacs
 fi
 
-alias make=make-wrapper.sh
+#alias make=make-wrapper.sh
 
