@@ -14,15 +14,12 @@
   (add-hook 'compilation-filter-hook
 	    #'my/colorize-compilation))
 
-
-(defun my-compilation-mode-hook ()
+(defun my-compilation-start-hook (&optional process)
   "Disable font-lock coz bway shit fuxers compilation mode font-lock to slow down emacs"
-  (when (equal (getenv "HOSTNAME") "mmikhanodsktp") 
-    (font-lock-mode 0))
-  (hl-line-mode 1))
+  (font-lock-mode (if (equal (getenv "HOSTNAME") "mmikhianodsktp") 0 1))
+  (hl-line-mode 1)) 
 
-
-(add-hook 'compilation-mode-hook 'my-compilation-mode-hook) 
+(add-hook 'compilation-start-hook 'my-compilation-start-hook) 
 
 (defun my-on-next-error-hook ()
   "Somehow hl-line does not highlight the compilation mode line even with hl-line-sticky-flag, so fix it"
