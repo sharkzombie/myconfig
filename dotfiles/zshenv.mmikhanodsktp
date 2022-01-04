@@ -8,6 +8,21 @@ path+="$(cygpath c:/Program\ Files/Git/cmd)"
 
 dp=c:/bway/source/trademanage/trunk/14.0_amd64_None/trunk.gd/Products/TOC4/bin64/DeployInstaller.exe 
 
+function vs140() {
+    cmd.exe /c 'C:\bwaysource\build2\windows\vs140varsamd64.bat & c:\cygwin64\bin\zsh.exe'
+}
+
+function vs160() {
+    cmd.exe /c 'C:\bwaysource\build2\windows\vs160varsamd64.bat & c:\cygwin64\bin\zsh.exe'
+}
+
+function vc2017() {
+    print this does not work
+    #local dir dir=$(cygpath -ad $PWD)
+    #cmd /c 'cd C:\PROGRA~2\MIB055~1\2017\COMMUN~1\VC\AUXILI~1\Build & vcvars64 & cd '$dir' & c:\cygwin64\bin\zsh'
+}
+ 
+gflags='C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\gflags.exe'
 
 set -o glob_star_short
 
@@ -51,13 +66,17 @@ alias -g th='$tt${$(upward_dir trade_lib)}/${^~hh}'
 alias -g tc='$tt${$(upward_dir trade_lib)}/${^~cc}'
 
 
+function _dubai() {
+ TZ=Asia/Dubai date +%Y-%m-%d
+}
+
 function goto {
     case $1 ; in
 	adap2)
-	cd //devny405/DevAdap2/Logs
+	cd //devny405/DevAdap2/Logs/$(_dubai)
 	;;
 	adap)
-	cd //bwaydev05/Dev.Adap/Logs
+	cd //bwaydev05/Dev.Adap/Logs($_dubai)
 	;;
 	*) print "Unknown goto $1"
     esac
