@@ -93,6 +93,8 @@ mapping will always be the ESC prefix map."
   (interactive)
   (quit-restore-window nil 'kill))
 
+(evil-define-minor-mode-key '(normal insert) 'cua-mode (kbd "C-v") 'cua-paste)
+(evil-define-key '(motion) 'global (kbd "C-\\") 'evil-visual-block)
 (evil-define-key '(normal motion insert) 'global (kbd "TAB") 'my-exec-key-in-emacs)
 ;; get rid of the Ctrl-R for redo and assign C-
 (evil-define-key '(normal motion) 'global (kbd "C-r") nil)
