@@ -123,7 +123,11 @@ bindkey -rM viins "\e/"
 # ignored files
 fignore+=($ignore)
 
+
+# this prevents ./bla from adding ./bla~ or ./bla.bak to completion
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns $fignore
+zstyle ':completion:*:complete:-command-::executables' ignored-patterns $fignore
+
 #
 # Keyboard configuration
 #
@@ -426,8 +430,9 @@ setopt AUTO_PUSHD PUSHD_MINUS PUSHD_SILENT PUSHD_TO_HOME PUSHD_IGNORE_DUPS
 #
 # Configure pager
 #
+LESS=
 if [[ -z $LESS && -x /usr/bin/less ]] ; then
-  LESS="-M -i"
+  LESS="-M -i -X -R"
   if [[ -x /usr/bin/lessopen.sh ]] ; then
     LESSOPEN="lessopen.sh %s"
     LESSCLOSE="lessclose.sh %s %s"
@@ -437,11 +442,10 @@ if [[ -z $LESS && -x /usr/bin/less ]] ; then
     LESSKEY=/etc/lesskey.bin
   fi
   PAGER=less
-  MORE=-sl
+  MORE=less
   export LESSOPEN LESSCLOSE LESS LESSKEY PAGER LESS_ADVANCED_PREPROCESSOR MORE
 fi
 export LESSHISTFILE=~/.lesshist
-LESS+=" -X -r"
 #
 # Set INFOPATH to tell xemacs where he can find the info files
 #
