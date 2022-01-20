@@ -8,7 +8,8 @@ function zvvv {
     for var in $* ; do 
         val=${(P)var}
         type=${(Pt)var}
-        echo "$var\t$type\t|$val|"
+        echo -n "$var\t$type\t"
+        echo -E "|$val|"
     done
 }
 
