@@ -72,12 +72,9 @@ function _dubai() {
 
 function goto {
     case $1 ; in
-	adap2)
-	cd //devny405/DevAdap2/Logs/$(_dubai)
-	;;
-	adap)
-	cd //bwaydev05/Dev.Adap/Logs($_dubai)
-	;;
-	*) print "Unknown goto $1"
+        adap2) cd //devny405/DevAdap2/Logs/$(_dubai) ;;
+        adap) cd //bwaydev05/DevAdap/Logs/$(_dubai) ;;
+	*) echo Unknown goto $1 ;;
     esac
 }
+
