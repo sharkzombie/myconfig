@@ -70,7 +70,7 @@
 ;; * Reinforce checking error.
 ;; * Support removing whole line include new-line.
 ;;
-;; 2020-01-30 Max Mikhanosha
+;; 2020-01-30
 ;; * Fix for Emacs 26, use the match group number from grep-regexp-alist when
 ;;   extracting line number instead of hardcoded (match-string 3), and ignore 
 ;;   the "Grep finished with N matches" line, which is somehow also matched 

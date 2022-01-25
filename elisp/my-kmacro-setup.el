@@ -1,11 +1,3 @@
-;;; my-kmacro-setup.el --- Better keybindings and utilities for Emacs keyboard macros
-
-;; Copyright (C) 2011  Max Mikhanosha
-
-;; Author: Max Mikhanosha <max@momoland.openchat.com>
-
-
-
 (require 'kmacro)
 
 ;; i like kmacro on K
