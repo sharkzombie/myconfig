@@ -1,6 +1,6 @@
 #!/bin/zsh
 if [[ $OS == Windows_NT ]] ; then
-    pskill64 -nobanner ssh-agent > /dev/null
+    pskill -nobanner ssh-agent > /dev/null
 else
     killall ssh-agent
     pkill ssh-agent
