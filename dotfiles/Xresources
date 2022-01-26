@@ -49,9 +49,9 @@ XTerm*renderFont: true
 !Emacs*font: Bitstream Vera Sans Mono-14
 Emacs*background: white
 XTerm*background: white
-#elif defined (CLNT_momoland)
+#elif defined (CLNT_xyz)
 XTerm*faceName: Consolas-13
-#elif defined (CLNT_mmikhanosha_pc)
+#elif defined (CLNT_xyz123)
 XTerm*faceName: Consolas
 XTerm*renderFont: true
 !Emacs*font: Consolas-10

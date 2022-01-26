@@ -58,7 +58,7 @@
 (ql:quickload :arnesi)
 (ql:quickload :stefil)
 
-(setf quickproject:*author* "Max Mikhanosha <max.mikhanosha@protonmail.com>"
+(setf quickproject:*author* "Bandit Monkey <bandit@monkeyforest.com>"
       quickproject:*license* "Apache License, Version 2.0")
 
 (defun mm/run (command &optional noerrorp)

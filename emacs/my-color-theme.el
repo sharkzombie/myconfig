@@ -1,6 +1,6 @@
 (eval-when-compile    (require 'color-theme))
 (defun my-color-theme ()
-  "Color theme by U-BROADWAY\mmikhanosha, created 2021-05-28."
+  "Color theme by bandit created 2021-05-28."
   (interactive)
   (color-theme-install
    '(my-color-theme
