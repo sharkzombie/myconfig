@@ -8,12 +8,16 @@ add-hook periodic_hook
 function _do_reload_config {
     local file=$1 tmp
     _do_reload[$file]=0
-    # sourcing a file here crashes older zsh
-    tmp="$(cat ~/.$file)"
-    print Reloading zsh file $file
-    eval "$tmp"
-    # [[ -o interactive ]] && . ~/.zshrc
-    # setopt no_local_options
+    if typeset -f + _do_reload_$file 2>&1 >/dev/null ; then
+        _do_reload_$file ~/.$file
+    else 
+        # sourcing a file here crashes older zsh
+        tmp="$(cat ~/.$file)"
+        print Reloading zsh file $file
+        eval "$tmp"
+        # [[ -o interactive ]] && . ~/.zshrc
+        # setopt no_local_options
+    fi
 }
 
 function _check_for_reload {

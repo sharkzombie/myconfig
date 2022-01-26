@@ -41,11 +41,14 @@ function _is_good_ssh_auth_sock() {
     (( $? == 0 || $? == 1 ))
 }
 
-(){
-    ## goddamn complicated business, coz checking if SSH_AUTH_SOCKET is good
+# this will be called automatically be autoreload
+_do_reload_ssh_auth_sock(){_do_ssh_agent_check}
+# actual check
+_do_ssh_agent_check(){
+    ## goddamn complicated business, coz checking if SSH_AUTH_SOCK is good
     ## takes 2 second or so (timeout on connecting to UNIX domain socket
     ##
-    ## So we check if ~/.ssh_auth_File is good, if it is, we just set
+    ## So we check if ~/.ssh_auth_sock is good, if it is, we just set
     ## SSH_AUTH_SOCK from it
     ##
     ## If ~/.ssh_auth_sock exists, but sets ssh_auth_sock to empty string
@@ -103,4 +106,8 @@ function _is_good_ssh_auth_sock() {
 	fi
     fi
 }
+
+# do this once
+_do_ssh_agent_check
+
 
