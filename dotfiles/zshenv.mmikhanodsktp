@@ -16,10 +16,10 @@ function vs160() {
     cmd.exe /c 'C:\bwaysource\build2\windows\vs160varsamd64.bat & c:\cygwin64\bin\zsh.exe'
 }
 
-function vc2017() {
-    print this does not work
-    #local dir dir=$(cygpath -ad $PWD)
-    #cmd /c 'cd C:\PROGRA~2\MIB055~1\2017\COMMUN~1\VC\AUXILI~1\Build & vcvars64 & cd '$dir' & c:\cygwin64\bin\zsh'
+function vc2022() {
+    local vars="/cygdrive/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
+    vars="\"$(cygpath -w $vars)\""
+    cmd.exe /c "$vars & c:\\cygwin64\\bin\\zsh.exe"
 }
  
 gflags='C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\gflags.exe'
