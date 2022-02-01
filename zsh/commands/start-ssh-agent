@@ -1,13 +1,14 @@
 #!/bin/zsh
 if [[ $OS == Windows_NT ]] ; then
-    pskill -nobanner ssh-agent > /dev/null
+    pskill -nobanner ssh-agent > /dev/null 2>&1
 else
-    killall ssh-agent
-    pkill ssh-agent
+    killall ssh-agent >/dev/null 2>&1
+    pkill ssh-agent >/dev/null 2>&1
 fi
 
 . =(setsid ssh-agent)
 
+# below fixes wingit
 if [[ $OS == Windows_NT ]] ; then
     SSH_AUTH_SOCK=$(cygpath -wm $SSH_AUTH_SOCK)
 fi
