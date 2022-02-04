@@ -126,5 +126,5 @@
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
 
-(require-if-available 'powershell-mode)
+(require-if-available 'powershell)
 
