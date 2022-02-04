@@ -10,7 +10,7 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-(package-refresh-contents)
+;;(package-refresh-contents)
 
 (add-to-list 'load-path "~/myconfig/elisp")
 
@@ -126,4 +126,5 @@
 (when (require-if-available 'jam-mode) 
   (add-to-list 'auto-mode-alist (cons "\\.\\(jam\\)$" 'jam-mode)))
 
+(require-if-available 'powershell-mode)
 
