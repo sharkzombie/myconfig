@@ -47,7 +47,7 @@
                            one-liner-defun
                            defun-close-semi
                            list-close-comma
-                           space-before-funcall
+                           ;;space-before-funcall
                            empty-defun-braces
                            scope-operator
                            compact-empty-funcall

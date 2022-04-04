@@ -110,4 +110,5 @@ _do_ssh_agent_check(){
 # do this once
 _do_ssh_agent_check
 
+alias make=make-wrapper.sh
 
