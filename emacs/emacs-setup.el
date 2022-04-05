@@ -112,6 +112,8 @@
 (require-if-available 'zsh-wildcard)
 
 
+(require-if-available 'my-orgmode-setup)
+
 
 ;; Editing file without extension but with zsh in their name
 ;; is shell mode
