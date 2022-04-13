@@ -25,6 +25,7 @@
     (get-text-property (point-at-bol)  property)))
 
 (unless (fboundp 'org-agenda-next-line)
+  ;; restore org-agenda-next-line/prev-line but these seem to exist now
   (defun org-agenda-next-line ()
     (interactive)
     (call-interactively 'next-line))
@@ -94,7 +95,7 @@
  ;; even if days  are empty show them
  org-agenda-show-all-dates t
  org-deadline-warning-days 7
- ;; show repeating entries in the future
+ ;; show repeating entries in the future, this variable does not appear to exist anymore in modern org?
  org-agenda-repeating-timestamp-show-all t
  ;; start today
  org-agenda-start-on-weekday 0
@@ -106,9 +107,13 @@
  org-depend-auto-trigger-todos "NEXT"
  
  org-agenda-use-grid t
+ 
  org-agenda-time-grid '((daily today require-timed)
-                        "----------------"
-                        (800 1000 1200 1400 1600 1800 2000))
+                        (800 1000 1200 1400 1600 1800 2000)
+                        "......" "----------------")
+ ;; ((daily today require-timed)
+ ;;                        "----------------"
+ ;;                        (800 1000 1200 1400 1600 1800 2000))
  org-log-state-notes-into-drawer t
  ;; default " %i %-12:c%?-12t%-7e % s"
  org-agenda-prefix-format '((agenda . "%-10:c%?-12t % s")
@@ -136,33 +141,34 @@
  org-tag-alist
  (if (string-match ".*velio.*" (getenv "HOSTNAME")) 
      '(("emacs" . ?e)
-     ("R" . ?r)
-     ("splunk" . ?s)
-     ("bind" . ?b)
-     ;; good/bad
-     ("good" . ?G)
-     ("bad" . ?B))
-   '(("emacs" . ?e)
-       ("org" . ?o)
-       ;; ("sunflare" . ?s)
-       ;; ("comp" . ?s)
-       ("slime" . ?s)
-       ("stump" . ?S)
+       ("R" . ?r)
+       ("splunk" . ?s)
        ("bind" . ?b)
-       ("paredit" . ?p)
-       ("log4cl" . ?l)
-       ("lisp" . ?L)
-       ;; ("gdb" . ?g)
-       ("web" . ?w)
-       ("wl" . ?u)
-       ("ats" . ?a)
        ;; good/bad
        ("good" . ?G)
-       ("bad" . ?B)))
+       ("bad" . ?B))
+   '(("emacs" . ?e)
+     ("org" . ?o)
+     ;; ("sunflare" . ?s)
+     ;; ("comp" . ?s)
+     ("slime" . ?s)
+     ("stump" . ?S)
+     ("bind" . ?b)
+     ("paredit" . ?p)
+     ("log4cl" . ?l)
+     ("lisp" . ?L)
+     ;; ("gdb" . ?g)
+     ("web" . ?w)
+     ("wl" . ?u)
+     ("ats" . ?a)
+     ;; good/bad
+     ("good" . ?G)
+     ("bad" . ?B)))
  org-fast-tag-selection-single-key 'expert
  org-agenda-log-mode-items '(closed)
  org-agenda-dim-blocked-tasks 'invisible
- org-agenda-diary-file (concat org-directory "/Diary.org"))
+ org-agenda-diary-file (concat org-directory "/Diary.org")
+ org-treat-insert-todo-heading-as-state-change nil)
 
 
 ;; Custom agenda command definitions
@@ -482,7 +488,7 @@ skipping headings of the same level as the starting position"
     (org-end-of-subtree t t)
     (or (bolp) (insert "\n"))
     (org-back-over-empty-lines)
-    (org-reveal nil)
+    ;; (org-reveal nil)
     level))
 
 (defun my-org-insert-todo-heading-end (arg)
@@ -491,9 +497,10 @@ skipping headings of the same level as the starting position"
   (let ((parent-level (my-org-end-of-parent)))
     (when parent-level
       (end-of-line 0)
-      (org-reveal nil)
+      ;; (org-reveal nil)
       (org-insert-todo-heading-respect-content)
-      (evil-insert-state))))
+      (evil-insert-state)
+      (mm/log-todo-creation-state-change))))
 
 (defun my-org-insert-todo-heading-start (arg)
   "Insert TODO heading at the end of the current project"
@@ -502,9 +509,10 @@ skipping headings of the same level as the starting position"
   (org-up-heading-safe)
   (outline-next-heading)
   (beginning-of-line)
-  (org-reveal)
+  ;; (org-reveal)
   (org-insert-todo-heading-respect-content)
-  (evil-insert-state))
+  (evil-insert-state)
+  (mm/log-todo-creation-state-change))
 
 (defun my-org-sort (&optional arg)
   "Sort current item if it has any TODO children, otherwise sort
@@ -734,6 +742,7 @@ any children"
 
 (define-key org-src-mode-map "\C-c" nil)
 
+;; wtf is this key?
 (define-key org-mode-map (kbd "C-M-^") 'org-insert-todo-heading-respect-content)
 
 (defun mm/org-insert-heading-after-current ()
@@ -850,14 +859,28 @@ any children"
 (defun mgm-after-org-mode ()
   (my-org-maybe-go-insert))
 
+(defun mm/log-todo-creation-state-change ()
+  "Add the state change to TODO from NEW"
+  (let ((org-cycle-level-after-item/entry-creation nil))
+    (org-add-log-setup 'state "TODO" "" 'state) 
+    (ignore-errors
+      (save-excursion (org-add-log-note)))
+    (org-cycle-hide-drawers 'children)
+    (org-cycle 'folded)))
 
-(defun mm/org-capture-mode-hook ()
-  (when (equal (org-capture-get :key 'local) "c") 
-    (org-add-log-setup 'state "TODO" "NEW" 'state)
-    (save-excursion (org-add-log-note))
-    (org-cycle-hide-drawers 'children)))
+(defun mm/org-capture-before-finalize ()
+  "If we capturing a todo log the creation"
+  (when (equal (org-capture-get :key 'local) "c")
+    (with-current-buffer (marker-buffer org-capture-last-stored-marker)
+      (save-excursion 
+        (goto-char org-capture-last-stored-marker) 
+        (mm/log-todo-creation-state-change)))))
 
-(add-hook 'org-capture-before-finalize-hook 'mm/org-capture-mode-hook)
+(defun mm/org-capture-after-finalize ()
+  "If we capturing a todo log the creation")
+
+(add-hook 'org-capture-before-finalize-hook 'mm/org-capture-before-finalize)
+(add-hook 'org-capture-after-finalize-hook 'mm/org-capture-after-finalize)
 
 (setq org-default-notes-file (concat org-directory "/Diary.org")) 
 (setq org-capture-templates
@@ -865,11 +888,13 @@ any children"
         ("c" "New TODO" entry (file+datetree "Diary.org")
          "* TODO %?")
         ("d" "Diary Entry" entry (file+datetree "Diary.org")
-         "* %U %?" :unnarrowed t)
+         "* %T %?" :unnarrowed nil)
         ("m" "Music" entry (file+headline "Music.org" "Music")
          "** %?")
         ;; ("d" "Diary" entry (file+headline "Diary.org" "Diary")
         ;;  "* %?\n%U\n%a\n  %i" :clock-in nil :clock-keep nil :clock-resume nil)
+
+        ;; below seems useless, wtf is 
         ("D" "Clocked Diary" entry (file+headline "Diary.org" "Diary")
          "* %?\n%U\n%a\n  %i" :clock-in t :clock-resume t)
         ("i" "Info" entry (file+headline "Assorted_Info.org" "Assorted Info")
@@ -1589,6 +1614,8 @@ Returns the sorted table list"
 (setq org-agenda-window-setup 'other-window
       org-agenda-restore-windows-after-quit t)
 
+;; this function is here so that we can set expert to t
+;; but need to keep it in sync with one in org.el
 (defun org-fast-todo-selection ()
   "Fast TODO keyword selection with single keys.
 Returns the new TODO keyword, or nil if no state change should occur."
@@ -1609,13 +1636,13 @@ Returns the new TODO keyword, or nil if no state change should occur."
 	    (set-buffer (get-buffer-create " *Org todo*"))
 	  (org-switch-to-buffer-other-window (get-buffer-create " *Org todo*")))
 	(erase-buffer)
-	(org-set-local 'org-done-keywords done-keywords)
+	(setq-local org-done-keywords done-keywords)
 	(setq tbl fulltable cnt 0)
 	(while (setq e (pop tbl))
 	  (cond
 	   ((equal e '(:startgroup))
 	    (push '() groups) (setq ingroup t)
-	    (when (not (= cnt 0))
+	    (unless (= cnt 0)
 	      (setq cnt 0)
 	      (insert "\n"))
 	    (insert "{ "))
@@ -1623,7 +1650,7 @@ Returns the new TODO keyword, or nil if no state change should occur."
 	    (setq ingroup nil cnt 0)
 	    (insert "}\n"))
 	   ((equal e '(:newline))
-	    (when (not (= cnt 0))
+	    (unless (= cnt 0)
 	      (setq cnt 0)
 	      (insert "\n")
 	      (setq e (car tbl))
@@ -1632,19 +1659,19 @@ Returns the new TODO keyword, or nil if no state change should occur."
 		(setq tbl (cdr tbl)))))
 	   (t
 	    (setq tg (car e) c (cdr e))
-	    (if ingroup (push tg (car groups)))
+	    (when ingroup (push tg (car groups)))
 	    (setq tg (org-add-props tg nil 'face
 				    (org-get-todo-face tg)))
-	    (if (and (= cnt 0) (not ingroup)) (insert "  "))
+	    (when (and (= cnt 0) (not ingroup)) (insert "  "))
 	    (insert "[" c "] " tg (make-string
 				   (- fwidth 4 (length tg)) ?\ ))
 	    (when (= (setq cnt (1+ cnt)) ncol)
 	      (insert "\n")
-	      (if ingroup (insert "  "))
+	      (when ingroup (insert "  "))
 	      (setq cnt 0)))))
 	(insert "\n")
 	(goto-char (point-min))
-	(if (not expert) (org-fit-window-to-buffer))
+	(unless expert (org-fit-window-to-buffer))
 	(message "[a-z..]:Set [SPC]:clear")
 	(setq c (let ((inhibit-quit t)) (read-char-exclusive)))
 	(cond
