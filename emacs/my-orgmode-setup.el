@@ -1,5 +1,8 @@
 
 
+(let ((dir "~/max-work/org-mode/lisp")) 
+  (when (file-directory-p dir)
+    (add-to-list 'load-path dir)))
 
 (require 'org-compat)
 (require 'org)
