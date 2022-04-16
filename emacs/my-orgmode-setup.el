@@ -168,7 +168,13 @@
  org-agenda-log-mode-items '(closed)
  org-agenda-dim-blocked-tasks 'invisible
  org-agenda-diary-file (concat org-directory "/Diary.org")
- org-treat-insert-todo-heading-as-state-change nil)
+ org-treat-insert-todo-heading-as-state-change nil
+ ;; org-show-context-detail nil
+ ;; '((agenda . local)
+  ;;  (bookmark-jump . lineage)
+  ;;  (isearch . canonical)
+  ;;  (default . ancestors))
+ )
 
 
 ;; Custom agenda command definitions
