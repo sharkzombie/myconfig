@@ -1789,6 +1789,140 @@ Returns the new TODO keyword, or nil if no state change should occur."
       (goto-char start) 
       (mm/refile-to-diary ts))))
 
+
+
+;;; Fix org-agenda-include-inactive-timestamps to be persistent per sticky agenda
+
+(defvar-local org-agenda-include-inactive-timestamps-toggle nil
+  "Toggle for the org-agenda-include-inactive-timestamps for this agenda buffer")
+
+(add-to-list 'org-agenda-local-vars 'org-agenda-include-inactive-timestamps-toggle)
+
+(defun org-agenda-toggle-inactive-timestamps ()
+  "Toggle inclusion of inactive timestamps in an agenda buffer."
+  (interactive)
+  (org-agenda-check-type t 'agenda)
+  (setq-local org-agenda-include-inactive-timestamps-toggle (not org-agenda-include-inactive-timestamps-toggle))
+  (org-agenda-redo)
+  (org-agenda-set-mode-name) 
+  (message "Inactive timestamps inclusion turned %s"
+	   (if org-agenda-include-inactive-timestamps-toggle "on" "off")))
+
+
+(defadvice org-agenda-redo (around my-inactive-timestamp-toggle activate)
+  (let ((org-agenda-include-inactive-timestamps org-agenda-include-inactive-timestamps-toggle)) 
+    (setq ad-return-value ad-do-it)))
+
+;;; this overrides the one in org-agenda, but no way to customize it
+(defun org-agenda-view-mode-dispatch ()
+  "Call one of the view mode commands."
+  (interactive)
+  (message "View: [d]ay  [w]eek  for[t]night  [m]onth  [y]ear  [SPC]reset  [q]uit/abort
+      time[G]rid   [[]inactive  [f]ollow      [l]og    [L]og-all   [c]lockcheck
+      [a]rch-trees [A]rch-files clock[R]eport include[D]iary       [E]ntryText")
+  (pcase (read-char-exclusive)
+    (?\ (call-interactively 'org-agenda-reset-view))
+    (?d (call-interactively 'org-agenda-day-view))
+    (?w (call-interactively 'org-agenda-week-view))
+    (?t (call-interactively 'org-agenda-fortnight-view))
+    (?m (call-interactively 'org-agenda-month-view))
+    (?y (call-interactively 'org-agenda-year-view))
+    (?l (call-interactively 'org-agenda-log-mode))
+    (?L (org-agenda-log-mode '(4)))
+    (?c (org-agenda-log-mode 'clockcheck))
+    ((or ?F ?f) (call-interactively 'org-agenda-follow-mode))
+    (?a (call-interactively 'org-agenda-archives-mode))
+    (?A (org-agenda-archives-mode 'files))
+    ((or ?R ?r) (call-interactively 'org-agenda-clockreport-mode))
+    ((or ?E ?e) (call-interactively 'org-agenda-entry-text-mode))
+    (?G (call-interactively 'org-agenda-toggle-time-grid))
+    (?D (call-interactively 'org-agenda-toggle-diary))
+    (?\! (call-interactively 'org-agenda-toggle-deadlines))
+    (?\[ (call-interactively 'org-agenda-toggle-inactive-timestamps))
+    (?q (message "Abort"))
+    (key (user-error "Invalid key: %s" key))))
+
+;; same, original is in org-agenda.el
+(defun org-agenda-set-mode-name ()
+  "Set the mode name to indicate all the small mode settings."
+  (setq mode-name
+	(list "Org-Agenda"
+	      (if (get 'org-agenda-files 'org-restrict) " []" "")
+	      " "
+	      '(:eval (org-agenda-span-name org-agenda-current-span))
+	      (if org-agenda-follow-mode     " Follow" "")
+	      (if org-agenda-entry-text-mode " ETxt"   "")
+	      (if org-agenda-include-diary   " Diary"  "")
+	      (if org-agenda-include-deadlines " Ddl"  "")
+	      (if org-agenda-use-time-grid   " Grid"   "")
+              (if org-agenda-include-inactive-timestamps " TS" "")
+	      (if (and (boundp 'org-habit-show-habits)
+		       org-habit-show-habits) " Habit"   "")
+	      (cond
+	       ((consp org-agenda-show-log) " LogAll")
+	       ((eq org-agenda-show-log 'clockcheck) " ClkCk")
+	       (org-agenda-show-log " Log")
+	       (t ""))
+	      (if (or org-agenda-category-filter
+		      (get 'org-agenda-category-filter :preset-filter))
+		  '(:eval (propertize
+	      		   (concat " <"
+	      			   (mapconcat
+	      			    'identity
+	      			    (append
+	      			     (get 'org-agenda-category-filter :preset-filter)
+	      			     org-agenda-category-filter)
+	      			    "")
+	      			   ">")
+	      		   'face 'org-agenda-filter-category
+	      		   'help-echo "Category used in filtering")) "")
+	      (if (or org-agenda-tag-filter
+		      (get 'org-agenda-tag-filter :preset-filter))
+		  '(:eval (propertize
+			   (concat " {"
+				   (mapconcat
+				    'identity
+				    (append
+				     (get 'org-agenda-tag-filter :preset-filter)
+				     org-agenda-tag-filter)
+				    "")
+				   "}")
+			   'face 'org-agenda-filter-tags
+			   'help-echo "Tags used in filtering")) "")
+	      (if (or org-agenda-effort-filter
+		      (get 'org-agenda-effort-filter :preset-filter))
+		  '(:eval (propertize
+			   (concat " {"
+				   (mapconcat
+				    'identity
+				    (append
+				     (get 'org-agenda-effort-filter :preset-filter)
+				     org-agenda-effort-filter)
+				    "")
+				   "}")
+			   'face 'org-agenda-filter-effort
+			   'help-echo "Effort conditions used in filtering")) "")
+	      (if (or org-agenda-regexp-filter
+		      (get 'org-agenda-regexp-filter :preset-filter))
+		  '(:eval (propertize
+			   (concat " ["
+				   (mapconcat
+				    'identity
+				    (append
+				     (get 'org-agenda-regexp-filter :preset-filter)
+				     org-agenda-regexp-filter)
+				    "")
+				   "]")
+			   'face 'org-agenda-filter-regexp
+			   'help-echo "Regexp used in filtering")) "")
+	      (if org-agenda-archives-mode
+		  (if (eq org-agenda-archives-mode t)
+		      " Archives"
+		    (format " :%s:" org-archive-tag))
+		"")
+	      (if org-agenda-clockreport-mode " Clock" "")))
+  (force-mode-line-update))
+
 (require-if-available 'ox-gfm)
 
 (provide 'my-orgmode-setup)
