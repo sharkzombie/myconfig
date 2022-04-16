@@ -894,7 +894,7 @@ any children"
         ("c" "New TODO" entry (file+datetree "Diary.org")
          "* TODO %?")
         ("d" "Diary Entry" entry (file+datetree "Diary.org")
-         "* %T %?" :unnarrowed nil)
+         "* %U %?" :unnarrowed nil)
         ("m" "Music" entry (file+headline "Music.org" "Music")
          "** %?")
         ;; ("d" "Diary" entry (file+headline "Diary.org" "Diary")
