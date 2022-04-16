@@ -1796,7 +1796,7 @@ Returns the new TODO keyword, or nil if no state change should occur."
 
 ;;; Fix org-agenda-include-inactive-timestamps to be persistent per sticky agenda
 
-(defvar-local org-agenda-include-inactive-timestamps-toggle nil
+(defvar org-agenda-include-inactive-timestamps-toggle nil
   "Toggle for the org-agenda-include-inactive-timestamps for this agenda buffer")
 
 (add-to-list 'org-agenda-local-vars 'org-agenda-include-inactive-timestamps-toggle)
@@ -1805,7 +1805,7 @@ Returns the new TODO keyword, or nil if no state change should occur."
   "Toggle inclusion of inactive timestamps in an agenda buffer."
   (interactive)
   (org-agenda-check-type t 'agenda)
-  (setq-local org-agenda-include-inactive-timestamps-toggle (not org-agenda-include-inactive-timestamps-toggle))
+  (setq org-agenda-include-inactive-timestamps-toggle (not org-agenda-include-inactive-timestamps-toggle))
   (org-agenda-redo)
   (org-agenda-set-mode-name) 
   (message "Inactive timestamps inclusion turned %s"
@@ -1820,9 +1820,10 @@ Returns the new TODO keyword, or nil if no state change should occur."
 (defun org-agenda-view-mode-dispatch ()
   "Call one of the view mode commands."
   (interactive)
-  (message "View: [d]ay  [w]eek  for[t]night  [m]onth  [y]ear  [SPC]reset  [q]uit/abort
-      time[G]rid   [[]inactive  [f]ollow      [l]og    [L]og-all   [c]lockcheck
-      [a]rch-trees [A]rch-files clock[R]eport include[D]iary       [E]ntryText")
+  (org-unlogged-message
+   "View: [d]ay  [w]eek  for[t]night  [m]onth  [y]ear  [SPC]reset  [q]uit/abort
+       time[G]rid   [[]inactive  [f]ollow      [l]og    [L]og-all   [c]lockcheck
+       [a]rch-trees [A]rch-files clock[R]eport include[D]iary       [E]ntryText")
   (pcase (read-char-exclusive)
     (?\ (call-interactively 'org-agenda-reset-view))
     (?d (call-interactively 'org-agenda-day-view))
@@ -1858,66 +1859,66 @@ Returns the new TODO keyword, or nil if no state change should occur."
 	      (if org-agenda-include-diary   " Diary"  "")
 	      (if org-agenda-include-deadlines " Ddl"  "")
 	      (if org-agenda-use-time-grid   " Grid"   "")
-              (if org-agenda-include-inactive-timestamps " TS" "")
+              (if org-agenda-include-inactive-timestamps-toggle  " TS"   "")
 	      (if (and (boundp 'org-habit-show-habits)
-		       org-habit-show-habits) " Habit"   "")
+		       org-habit-show-habits)
+		  " Habit"   "")
 	      (cond
 	       ((consp org-agenda-show-log) " LogAll")
 	       ((eq org-agenda-show-log 'clockcheck) " ClkCk")
 	       (org-agenda-show-log " Log")
 	       (t ""))
+	      (if (org-agenda-filter-any) " " "")
 	      (if (or org-agenda-category-filter
 		      (get 'org-agenda-category-filter :preset-filter))
 		  '(:eval (propertize
-	      		   (concat " <"
+			   (concat "["
 	      			   (mapconcat
-	      			    'identity
+                                    #'identity
 	      			    (append
 	      			     (get 'org-agenda-category-filter :preset-filter)
 	      			     org-agenda-category-filter)
 	      			    "")
-	      			   ">")
+				   "]")
 	      		   'face 'org-agenda-filter-category
-	      		   'help-echo "Category used in filtering")) "")
+                           'help-echo "Category used in filtering"))
+                "")
 	      (if (or org-agenda-tag-filter
 		      (get 'org-agenda-tag-filter :preset-filter))
 		  '(:eval (propertize
-			   (concat " {"
-				   (mapconcat
-				    'identity
+			   (concat (mapconcat
+				    #'identity
 				    (append
 				     (get 'org-agenda-tag-filter :preset-filter)
 				     org-agenda-tag-filter)
-				    "")
-				   "}")
+				    ""))
 			   'face 'org-agenda-filter-tags
-			   'help-echo "Tags used in filtering")) "")
+			   'help-echo "Tags used in filtering"))
+		"")
 	      (if (or org-agenda-effort-filter
 		      (get 'org-agenda-effort-filter :preset-filter))
 		  '(:eval (propertize
-			   (concat " {"
-				   (mapconcat
-				    'identity
+			   (concat (mapconcat
+				    #'identity
 				    (append
 				     (get 'org-agenda-effort-filter :preset-filter)
 				     org-agenda-effort-filter)
-				    "")
-				   "}")
+				    ""))
 			   'face 'org-agenda-filter-effort
-			   'help-echo "Effort conditions used in filtering")) "")
+			   'help-echo "Effort conditions used in filtering"))
+		"")
 	      (if (or org-agenda-regexp-filter
 		      (get 'org-agenda-regexp-filter :preset-filter))
 		  '(:eval (propertize
-			   (concat " ["
-				   (mapconcat
-				    'identity
+			   (concat (mapconcat
+				    (lambda (x) (concat (substring x 0 1) "/" (substring x 1) "/"))
 				    (append
 				     (get 'org-agenda-regexp-filter :preset-filter)
 				     org-agenda-regexp-filter)
-				    "")
-				   "]")
+				    ""))
 			   'face 'org-agenda-filter-regexp
-			   'help-echo "Regexp used in filtering")) "")
+			   'help-echo "Regexp used in filtering"))
+		"")
 	      (if org-agenda-archives-mode
 		  (if (eq org-agenda-archives-mode t)
 		      " Archives"
