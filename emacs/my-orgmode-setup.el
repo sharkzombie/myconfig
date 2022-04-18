@@ -1,12 +1,15 @@
 
+(require 'my-utils)
 
-(let ((dir "~/max-work/org-mode/lisp")) 
+(let ((dir "~/org-mode/lisp"))
   (when (file-directory-p dir)
     (add-to-list 'load-path dir)))
 
 (require 'org-compat)
 (require 'org)
 (require 'org-agenda)
+
+
 (require-if-available 'org-depend)
 (require-if-available 'org-clock)
 (require-if-available 'org-id)
@@ -59,10 +62,9 @@
                 (evil-insert-state))))
 
 
-(setq org-directory "~/my-org")
-(when (string= (getenv "HOSTNAME") "backtest1.chi1.veliosystems.com")
-  (setq org-directory "/uat-max:my-org")
-  (setq org-agenda-files))
+(setq org-directory (or (my-ensure-directory (getenv "MYORG"))
+                        (my-ensure-directory "~/my-org")
+                        (my-ensure-directory "k:/my-org")))
 
 ;; set my variables
 (setq 
@@ -174,9 +176,9 @@
  org-treat-insert-todo-heading-as-state-change nil
  ;; org-show-context-detail nil
  ;; '((agenda . local)
-  ;;  (bookmark-jump . lineage)
-  ;;  (isearch . canonical)
-  ;;  (default . ancestors))
+ ;;  (bookmark-jump . lineage)
+ ;;  (isearch . canonical)
+ ;;  (default . ancestors))
  )
 
 
@@ -1341,7 +1343,7 @@ the default task."
 
 (setq org-mobile-directory "~/Dropbox/org-mobile")
 (setq org-mobile-files '(org-agenda-files))
-(setq org-mobile-inbox-for-pull "~/my-org/Mobile_Inbox.org")
+(setq org-mobile-inbox-for-pull (concat org-directory "/Mobile_Inbox.org"))
 (setq org-mobile-agendas '("N"))
 
 ;; auto-insert TRIGGER when making entry next
@@ -1868,7 +1870,7 @@ Returns the new TODO keyword, or nil if no state change should occur."
 	       ((eq org-agenda-show-log 'clockcheck) " ClkCk")
 	       (org-agenda-show-log " Log")
 	       (t ""))
-	      (if (org-agenda-filter-any) " " "")
+	      (if (and (fboundp 'org-agenda-filter-any) (org-agenda-filter-any)) " " "")
 	      (if (or org-agenda-category-filter
 		      (get 'org-agenda-category-filter :preset-filter))
 		  '(:eval (propertize

@@ -82,4 +82,10 @@ For example (log-expr a b) will log 'a=123 b=321'
   (if (null arg) (not mode)
     (plusp arg)))
 
+
+(defun my-ensure-directory (dir)
+  "Returns DIR if its a directory in the file system"
+  (when (and dir (file-directory-p dir))
+    dir))
+
 (provide 'my-utils)
