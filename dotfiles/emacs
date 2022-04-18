@@ -22,6 +22,7 @@
  '(package-selected-packages
    (quote
     (cmake-mode cedit undo-tree csharp-mode yaml-mode evil-paredit egg evil)))
+ '(revert-without-query (quote ("/my-org/[^/]+\\.\\(org\\|org_archive\\)$")))
  '(safe-local-variable-values
    (quote
     ((whitespace-action warn-read-only auto-cleanup)
