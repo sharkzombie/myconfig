@@ -44,6 +44,7 @@
       (setq last-kbd-macro (vconcat last-kbd-macro [escape]))
       (start-kbd-macro t t))))
 
+;; overriding this too
 (defun evil-esc (map)
   "Translate \\e to 'escape if no further event arrives.
 This function is used to translate a \\e event either to 'escape
@@ -86,6 +87,95 @@ mapping will always be the ESC prefix map."
 	   map)))
     ;;(log-sexp ret)
     ret))
+
+;; overriding this, the only change is comment out of (when evil-ex-p) part
+;; which causes c key to change entire line in C-f ex window
+(defun evil-operator-range (&optional return-type)
+  "Read a motion from the keyboard and return its buffer positions.
+The return value is a list (BEG END), or (BEG END TYPE) if
+RETURN-TYPE is non-nil."
+  (let* ((evil-ex-p (and (not (minibufferp)) (evil-ex-p)))
+         (motion (or evil-operator-range-motion
+                     ;; (when evil-ex-p 'evil-line)
+                     ))
+         (type evil-operator-range-type)
+         (range (evil-range (point) (point)))
+         command count)
+    (setq evil-this-type-modified nil)
+    (evil-save-echo-area
+      (cond
+       ;; Ex mode
+       ((and evil-ex-p evil-ex-range)
+        (setq range evil-ex-range))
+       ;; Visual selection
+       ((and (not evil-ex-p) (evil-visual-state-p))
+        (setq range (evil-visual-range)))
+       ;; active region
+       ((and (not evil-ex-p) (region-active-p))
+        (setq range (evil-range (region-beginning)
+                                (region-end)
+                                (or evil-this-type 'exclusive))))
+       (t
+        ;; motion
+        (evil-save-state
+          (unless motion
+            (evil-change-state 'operator)
+            ;; Make linewise operator shortcuts. E.g., "d" yields the
+            ;; shortcut "dd", and "g?" yields shortcuts "g??" and "g?g?".
+            (let ((keys (nth 2 (evil-extract-count (this-command-keys)))))
+              (setq keys (listify-key-sequence keys))
+              (dotimes (var (length keys))
+                (define-key evil-operator-shortcut-map
+                  (vconcat (nthcdr var keys)) 'evil-line-or-visual-line)))
+            ;; read motion from keyboard
+            (setq command (evil-read-motion motion)
+                  motion (nth 0 command)
+                  count (nth 1 command)
+                  type (or type (nth 2 command))))
+          (cond
+           ((eq motion #'undefined)
+            (setq range (if return-type '(nil nil nil) '(nil nil))
+                  motion nil))
+           ((or (null motion)           ; keyboard-quit
+                (evil-get-command-property motion :suppress-operator))
+            (when (fboundp 'evil-repeat-abort)
+              (evil-repeat-abort))
+            (setq quit-flag t
+                  motion nil))
+           (evil-repeat-count
+            (setq count evil-repeat-count
+                  ;; only the first operator's count is overwritten
+                  evil-repeat-count nil))
+           ((or count current-prefix-arg)
+            ;; multiply operator count and motion count together
+            (setq count
+                  (* (prefix-numeric-value count)
+                     (prefix-numeric-value current-prefix-arg)))))
+          (when motion
+            (let ((evil-state 'operator)
+                  mark-active)
+              ;; calculate motion range
+              (setq range (evil-motion-range
+                           motion
+                           count
+                           type))))
+          ;; update global variables
+          (setq evil-this-motion motion
+                evil-this-motion-count count
+                type (evil-type range type)
+                evil-this-type type))))
+      (when (evil-range-p range)
+        (unless (or (null type) (eq (evil-type range) type))
+          (evil-contract-range range)
+          (evil-set-type range type)
+          (evil-expand-range range))
+        (evil-set-range-properties range nil)
+        (unless return-type
+          (evil-set-type range nil))
+        (setq evil-operator-range-beginning (evil-range-beginning range)
+              evil-operator-range-end (evil-range-end range)
+              evil-operator-range-type (evil-type range)))
+      range)))
 
 
 (defun my-quit-restore-window ()
