@@ -46,6 +46,10 @@
   (interactive)
   (erc "64.161.255.2" 6666 "maxm" nil t nil))
 
+;; does not work, need ERC SASL thing
+(defun irc-libranet ()
+  (interactive)
+  (erc :server "irc.libera.chat" :port 6667 :nick "maxm" :full-name nil :password nil))
 
 (add-hook 'emacs-startup-hook
           (lambda ()
