@@ -107,11 +107,12 @@
  org-agenda-skip-deadline-if-done t
  org-agenda-skip-scheduled-if-done t
  org-agenda-show-inherited-tags nil
- org-use-fast-todo-selection t
+ org-agenda-persistent-filter t
+ org-use-fast-todo-selection 'expert
  org-depend-highest-priority t
  org-depend-auto-trigger-todos "NEXT"
  
- org-agenda-use-grid t
+ org-agenda-use-grid nil 
  
  org-agenda-time-grid '((daily today require-timed)
                         (800 1000 1200 1400 1600 1800 2000)
@@ -1624,75 +1625,6 @@ Returns the sorted table list"
 
 (setq org-agenda-window-setup 'other-window
       org-agenda-restore-windows-after-quit t)
-
-;; this function is here so that we can set expert to t
-;; but need to keep it in sync with one in org.el
-(defun org-fast-todo-selection ()
-  "Fast TODO keyword selection with single keys.
-Returns the new TODO keyword, or nil if no state change should occur."
-  (let* ((fulltable org-todo-key-alist)
-	 (done-keywords org-done-keywords) ;; needed for the faces.
-	 (maxlen (apply 'max (mapcar
-			      (lambda (x)
-				(if (stringp (car x)) (string-width (car x)) 0))
-			      fulltable)))
-	 (expert t)
-	 (fwidth (+ maxlen 3 1 3))
-	 (ncol (/ (- (window-width) 4) fwidth))
-	 tg cnt e c tbl
-	 groups ingroup)
-    (save-excursion
-      (save-window-excursion
-	(if expert
-	    (set-buffer (get-buffer-create " *Org todo*"))
-	  (org-switch-to-buffer-other-window (get-buffer-create " *Org todo*")))
-	(erase-buffer)
-	(setq-local org-done-keywords done-keywords)
-	(setq tbl fulltable cnt 0)
-	(while (setq e (pop tbl))
-	  (cond
-	   ((equal e '(:startgroup))
-	    (push '() groups) (setq ingroup t)
-	    (unless (= cnt 0)
-	      (setq cnt 0)
-	      (insert "\n"))
-	    (insert "{ "))
-	   ((equal e '(:endgroup))
-	    (setq ingroup nil cnt 0)
-	    (insert "}\n"))
-	   ((equal e '(:newline))
-	    (unless (= cnt 0)
-	      (setq cnt 0)
-	      (insert "\n")
-	      (setq e (car tbl))
-	      (while (equal (car tbl) '(:newline))
-		(insert "\n")
-		(setq tbl (cdr tbl)))))
-	   (t
-	    (setq tg (car e) c (cdr e))
-	    (when ingroup (push tg (car groups)))
-	    (setq tg (org-add-props tg nil 'face
-				    (org-get-todo-face tg)))
-	    (when (and (= cnt 0) (not ingroup)) (insert "  "))
-	    (insert "[" c "] " tg (make-string
-				   (- fwidth 4 (length tg)) ?\ ))
-	    (when (= (setq cnt (1+ cnt)) ncol)
-	      (insert "\n")
-	      (when ingroup (insert "  "))
-	      (setq cnt 0)))))
-	(insert "\n")
-	(goto-char (point-min))
-	(unless expert (org-fit-window-to-buffer))
-	(message "[a-z..]:Set [SPC]:clear")
-	(setq c (let ((inhibit-quit t)) (read-char-exclusive)))
-	(cond
-	 ((or (= c ?\C-g)
-	      (and (= c ?q) (not (rassoc c fulltable))))
-	  (setq quit-flag t))
-	 ((= c ?\ ) nil)
-	 ((setq e (rassoc c fulltable) tg (car e))
-	  tg)
-	 (t (setq quit-flag t)))))))
 
 (remove-hook 'org-tab-first-hook 'org-babel-header-arg-expand)
 
