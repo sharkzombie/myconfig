@@ -639,7 +639,9 @@ any children"
 (evil-define-key 'normal org-mode-map "\C-p" 'outline-previous-visible-heading)
 (evil-define-key 'normal org-mode-map "\C-n" 'outline-next-visible-heading)
 
-(define-key org-mode-map (kbd "RET") 'org-return-indent)
+;; recent org makes this obsolete and instead makes `org-return' have
+;; INDENT parameter initialized from electric-indent-mode
+;;(define-key org-mode-map (kbd "RET") 'org-return-indent)
 
 (defun mm/org-set-tags (&optional arg just-align)
   "Go back to heading the do org-set-tags"
