@@ -1,7 +1,7 @@
 emulate -L zsh
 dict=${DICT:-/usr/share/dict/words}
 local -a args
-local fromend=0
+local fromend=0 opt
 
 for opt {
     case $opt in
