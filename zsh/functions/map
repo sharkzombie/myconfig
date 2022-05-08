@@ -1,16 +1,14 @@
 emulate -L zsh
 
-typeset a ___=$1; shift
+typeset ___=$1; shift
 
-# if mapping expression EXPR does not contain $ then
-# wrap it as ${aEXPR} 
+# if mapping expression EXPR does not contain $ then wrap it as ${EXPR} 
 if [[ $___ != *\$* ]] ; then
-   echo here 
-   ___="\${\${a}$___}"
-   zvvv ___
+   ___="\${$___}"
+   #zvvv ___
 fi
 
-for a ; do
+for 1 ; do
     print -- ${(e)___}
 done
 
