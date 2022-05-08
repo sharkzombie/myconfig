@@ -8,7 +8,7 @@ function zsh-autoreload-check {
     emulate -L zsh
     local time file
     local first_time=0
-    for file in zalias ssh_auth_sock
+    for file in zshrc zalias ssh_auth_sock
     do
         if [[ -f ~/.$file ]] ; then
             time=$(stat +mtime ~/.$file)
