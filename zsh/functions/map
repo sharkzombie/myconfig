@@ -1,0 +1,8 @@
+emulate -L zsh
+
+typeset a ___=$1; shift
+
+for a ; do
+    print -- ${(e)___}
+done
+
