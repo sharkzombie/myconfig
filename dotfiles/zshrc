@@ -446,6 +446,10 @@ if [[ -z $LESS && -x /usr/bin/less ]] ; then
   export LESSOPEN LESSCLOSE LESS LESSKEY PAGER LESS_ADVANCED_PREPROCESSOR MORE
 fi
 export LESSHISTFILE=~/.lesshist
+# Change man to pass -P-i to nroff, which makes grotty output real
+# italic instead of underline
+export MANROFFOPT="-- -P-i"
+
 #
 # Set INFOPATH to tell xemacs where he can find the info files
 #
@@ -558,8 +562,7 @@ if [ -n "$DISPLAY" -a -z "$XAUTHORITY" ] ; then
 fi
 
 # fix man displaying "Find all manual pages" since OpenSuSe 10.2
-export MAN_POSIXLY_CORRECT=1
-test1=moo2
+# export MAN_POSIXLY_CORRECT=1
 
 export VISUAL=edit-in-emacs
 export EDITOR=edit-in-emacs
