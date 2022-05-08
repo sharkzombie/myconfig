@@ -8,7 +8,9 @@
 (require 'org-compat)
 (require 'org)
 (require 'org-agenda)
+(require 'ob-shell)
 
+(add-to-list 'org-src-lang-modes `("zsh" . sh))
 
 (require-if-available 'org-depend)
 (require-if-available 'org-clock)
@@ -19,6 +21,7 @@
 (require-if-available 'org-src)
 (require-if-available 'org-element)
 (require-if-available 'org-wl)
+
 
 
 (unless (fboundp 'org-mode-p)
@@ -1628,7 +1631,8 @@ Returns the sorted table list"
 (setq org-agenda-window-setup 'other-window
       org-agenda-restore-windows-after-quit t)
 
-(remove-hook 'org-tab-first-hook 'org-babel-header-arg-expand)
+;; why did I had this?
+;; (remove-hook 'org-tab-first-hook 'org-babel-header-arg-expand)
 
 (defadvice org-agenda-quit (around dont-do-it-on-dedicated-window activate)
   (if (window-dedicated-p)
@@ -1864,6 +1868,7 @@ Returns the sorted table list"
   (force-mode-line-update))
 
 (require-if-available 'ox-gfm)
+
 
 (provide 'my-orgmode-setup)
 
