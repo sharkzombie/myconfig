@@ -10,7 +10,6 @@
 (require 'org-agenda)
 (require 'ob-shell)
 
-(add-to-list 'org-src-lang-modes `("zsh" . sh))
 
 (require-if-available 'org-depend)
 (require-if-available 'org-clock)
@@ -22,6 +21,8 @@
 (require-if-available 'org-element)
 (require-if-available 'org-wl)
 
+(add-to-list 'org-src-lang-modes `("zsh" . sh))
+(setq org-confirm-babel-evaluate nil)
 
 
 (unless (fboundp 'org-mode-p)
