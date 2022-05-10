@@ -1,4 +1,5 @@
 " add this directory to runtime path 
+set termguicolors
 let s:myvim = expand("<sfile>:p:h")
 let s:new_runtime_path = s:myvim . ',' . &runtimepath . ',' . s:myvim . '/after'
 execute 'set runtimepath=' . substitute(s:new_runtime_path, ' ', '\\ ', 'g')
